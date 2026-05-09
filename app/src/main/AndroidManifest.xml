@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+
     <application
         android:name=".RTOmeterApp"
         android:allowBackup="true"
@@ -22,6 +28,11 @@
         <activity
             android:name=".ui.onboarding.OnboardingActivity"
             android:exported="false" />
+
+        <activity
+            android:name=".ui.office.OfficeSetupActivity"
+            android:exported="false"
+            android:label="@string/office_setup_title" />
 
     </application>
 
