@@ -27,4 +27,7 @@ public interface QuarterDao {
 
     @Query("SELECT * FROM quarters ORDER BY fiscalYear DESC, quarterNumber DESC")
     List<Quarter> getAll();
+
+    @Query("SELECT * FROM quarters WHERE startDate <= :date AND endDate >= :date LIMIT 1")
+    Quarter getByDate(String date);
 }

@@ -51,4 +51,5 @@ dependencies {
     testImplementation libs.room.testing
     testImplementation libs.core.testing
     testImplementation libs.androidx.test.core
+    testImplementation libs.workmanager.testing
 }

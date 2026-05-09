@@ -9,10 +9,10 @@
 
 - [x] RTO-3: Data model — Quarter, Office, AttendanceDay, AppConfig (Room entities + DAOs)
 - [x] RTO-4: QuarterCalculatorModule — working days, percentage, pace logic
-- [ ] RTO-5: Fiscal quarter presets + custom config
+- [x] RTO-5: Fiscal quarter presets + custom config (FiscalQuarterPreset enum, FiscalQuarterFactory, tests)
 - [ ] RTO-6: Bank holiday presets (IT, GB, US, DE, FR) + manual add/remove
 - [ ] RTO-7: Onboarding wizard (6 screens: quarter → target → hours → office → holidays → pre-load)
-- [ ] RTO-8: GpsDetectionModule — WorkManager periodic task + geofence check
+- [x] RTO-8: GpsDetectionModule — WorkManager periodic task + geofence check (GeofenceChecker, GpsDetectionWorker, GpsScheduler, tests)
 - [ ] RTO-9: DashboardModule — percentage, pace indicator, summary stats
 - [ ] RTO-10: CalendarModule — quarter calendar view + day status tap/edit
 - [ ] RTO-11: OfficeSetupModule — map pin + current location + radius config
