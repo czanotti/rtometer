@@ -1,0 +1,45 @@
+plugins {
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.hilt)
+}
+
+android {
+    namespace 'com.rtometer'
+    compileSdk 35
+
+    defaultConfig {
+        applicationId "com.rtometer"
+        minSdk 26
+        targetSdk 35
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
+
+dependencies {
+    implementation libs.androidx.appcompat
+    implementation libs.material
+    implementation libs.constraintlayout
+    implementation libs.lifecycle.viewmodel
+    implementation libs.lifecycle.livedata
+    implementation libs.room.runtime
+    annotationProcessor libs.room.compiler
+    implementation libs.workmanager
+    implementation libs.hilt.android
+    annotationProcessor libs.hilt.compiler
+
+    testImplementation libs.junit
+}

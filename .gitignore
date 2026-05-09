@@ -1,0 +1,28 @@
+# Gradle
+.gradle/
+**/build/
+!gradle/wrapper/gradle-wrapper.jar
+
+# Claude Code
+.claude/
+
+# Android Studio / IntelliJ
+.idea/
+*.iml
+*.iws
+*.ipr
+local.properties
+captures/
+
+# Build artifacts
+*.apk
+*.aab
+*.ap_
+
+# Signing keys — never commit
+*.keystore
+*.jks
+
+# OS
+.DS_Store
+Thumbs.db
