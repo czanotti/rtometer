@@ -4,8 +4,11 @@ import android.content.Context;
 
 import androidx.room.Room;
 
+import com.rtometer.data.db.AppConfigDao;
 import com.rtometer.data.db.AppDatabase;
-import com.rtometer.data.db.PlaceholderDao;
+import com.rtometer.data.db.AttendanceDayDao;
+import com.rtometer.data.db.OfficeDao;
+import com.rtometer.data.db.QuarterDao;
 
 import javax.inject.Singleton;
 
@@ -26,7 +29,22 @@ public class DatabaseModule {
     }
 
     @Provides
-    public PlaceholderDao providePlaceholderDao(AppDatabase db) {
-        return db.placeholderDao();
+    public QuarterDao provideQuarterDao(AppDatabase db) {
+        return db.quarterDao();
+    }
+
+    @Provides
+    public OfficeDao provideOfficeDao(AppDatabase db) {
+        return db.officeDao();
+    }
+
+    @Provides
+    public AttendanceDayDao provideAttendanceDayDao(AppDatabase db) {
+        return db.attendanceDayDao();
+    }
+
+    @Provides
+    public AppConfigDao provideAppConfigDao(AppDatabase db) {
+        return db.appConfigDao();
     }
 }

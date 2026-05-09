@@ -27,6 +27,11 @@ android {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
     }
+    testOptions {
+        unitTests {
+            includeAndroidResources = true
+        }
+    }
 }
 
 dependencies {
@@ -42,4 +47,8 @@ dependencies {
     annotationProcessor libs.hilt.compiler
 
     testImplementation libs.junit
+    testImplementation libs.robolectric
+    testImplementation libs.room.testing
+    testImplementation libs.core.testing
+    testImplementation libs.androidx.test.core
 }
