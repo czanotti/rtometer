@@ -55,6 +55,34 @@
     <string name="preload_yes">Yes — enter the number of days I attended</string>
     <string name="preload_count_hint">Days</string>
 
+    <!-- Bottom navigation -->
+    <string name="nav_dashboard">Dashboard</string>
+    <string name="nav_calendar">Calendar</string>
+    <string name="nav_history">History</string>
+
+    <!-- Office setup -->
+    <string name="office_setup_title">Manage Offices</string>
+    <string name="office_add_title">Add Office</string>
+    <string name="office_edit_action">Edit office</string>
+    <string name="office_delete_action">Delete office</string>
+    <string name="office_primary_label">%1$s (Primary)</string>
+    <string name="office_map_pin_title">Office location</string>
+    <string name="office_use_current_location">Use Current Location</string>
+    <string name="office_radius_label">Detection radius: %1$dm</string>
+    <string name="office_name_required">Office name is required</string>
+    <string name="office_location_permission_needed">Location permission required</string>
+    <string name="office_location_unavailable">Current location unavailable</string>
+    <string name="office_delete_title">Delete Office</string>
+    <string name="office_delete_message">Delete \"%1$s\"?</string>
+    <string name="office_delete_last_blocked">At least one office must remain</string>
+    <string name="menu_manage_offices">Manage Offices</string>
+
+    <!-- History -->
+    <string name="history_empty">No past quarters yet</string>
+    <string name="history_days_fraction">%1$d / %2$d days</string>
+    <string name="history_target_met">Target met ✓</string>
+    <string name="history_target_missed">Target missed</string>
+
     <!-- Dashboard -->
     <string name="dashboard_empty_title">No quarter configured</string>
     <string name="dashboard_empty_subtitle">Complete setup to start tracking</string>
