@@ -1,4 +1,57 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">RTOmeter</string>
+
+    <!-- Onboarding navigation -->
+    <string name="step_of">Step %1$d of %2$d</string>
+    <string name="btn_back">Back</string>
+    <string name="btn_next">Next</string>
+    <string name="btn_skip">Skip</string>
+    <string name="btn_finish">Finish</string>
+
+    <!-- Step 1 -->
+    <string name="step1_title">Fiscal Quarter</string>
+    <string name="step1_subtitle">Select your fiscal quarter preset and year</string>
+    <string name="preset_calendar">Calendar (Jan, Apr, Jul, Oct)</string>
+    <string name="preset_feb_start">Feb start (Feb, May, Aug, Nov)</string>
+    <string name="preset_apr_start">Apr start (Apr, Jul, Oct, Jan)</string>
+    <string name="preset_may_start">May start (May, Aug, Nov, Feb)</string>
+    <string name="preset_custom">Custom start month</string>
+    <string name="start_month_label">Start month:</string>
+    <string name="fiscal_year_label">Fiscal year</string>
+
+    <!-- Step 2 -->
+    <string name="step2_title">Attendance Target</string>
+    <string name="step2_subtitle">What percentage of working days must you be in the office?</string>
+
+    <!-- Step 3 -->
+    <string name="step3_title">Working Hours</string>
+    <string name="work_start_label">Work day start</string>
+    <string name="work_end_label">Work day end</string>
+    <string name="gps_interval_label">GPS check interval (minutes)</string>
+    <string name="minutes_hint">minutes</string>
+
+    <!-- Step 4 -->
+    <string name="step4_title">Office Location</string>
+    <string name="step4_subtitle">Add your primary office. GPS will check this location during work hours.</string>
+    <string name="office_name_hint">Office name</string>
+    <string name="lat_hint">Latitude</string>
+    <string name="lng_hint">Longitude</string>
+    <string name="radius_hint">Radius (meters)</string>
+
+    <!-- Step 5 -->
+    <string name="step5_title">Bank Holidays</string>
+    <string name="step5_subtitle">Select your country to skip bank holidays automatically (optional)</string>
+    <string name="country_it">Italy (IT)</string>
+    <string name="country_gb">United Kingdom (GB)</string>
+    <string name="country_us">United States (US)</string>
+    <string name="country_de">Germany (DE)</string>
+    <string name="country_fr">France (FR)</string>
+
+    <!-- Step 6 -->
+    <string name="step6_title">Pre-load Days</string>
+    <string name="step6_subtitle">Have you already attended the office this quarter?</string>
+    <string name="preload_no">No, start from zero</string>
+    <string name="preload_yes">Yes — enter the number of days I attended</string>
+    <string name="preload_count_hint">Days</string>
 </resources>
