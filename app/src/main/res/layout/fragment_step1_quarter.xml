@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="8dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="8dp"
+            android:text="@string/step1_title"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="16dp"
+            android:text="@string/step1_subtitle" />
+
+        <RadioGroup
+            android:id="@+id/rgPreset"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <RadioButton
+                android:id="@+id/rbCalendar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="true"
+                android:text="@string/preset_calendar" />
+
+            <RadioButton
+                android:id="@+id/rbFebStart"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/preset_feb_start" />
+
+            <RadioButton
+                android:id="@+id/rbAprStart"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/preset_apr_start" />
+
+            <RadioButton
+                android:id="@+id/rbMayStart"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/preset_may_start" />
+
+            <RadioButton
+                android:id="@+id/rbCustom"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/preset_custom" />
+
+        </RadioGroup>
+
+        <LinearLayout
+            android:id="@+id/layoutCustomMonth"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingTop="8dp"
+            android:visibility="gone">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/start_month_label" />
+
+            <NumberPicker
+                android:id="@+id/pickerMonth"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp" />
+
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="8dp"
+            android:paddingTop="16dp"
+            android:text="@string/fiscal_year_label" />
+
+        <Spinner
+            android:id="@+id/spinnerYear"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+    </LinearLayout>
+</ScrollView>

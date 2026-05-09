@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="8dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="8dp"
+            android:text="@string/step4_title"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="16dp"
+            android:text="@string/step4_subtitle" />
+
+        <EditText
+            android:id="@+id/etOfficeName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/office_name_hint"
+            android:inputType="text"
+            android:layout_marginBottom="12dp" />
+
+        <EditText
+            android:id="@+id/etLat"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/lat_hint"
+            android:inputType="numberDecimal|numberSigned"
+            android:layout_marginBottom="12dp" />
+
+        <EditText
+            android:id="@+id/etLng"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/lng_hint"
+            android:inputType="numberDecimal|numberSigned"
+            android:layout_marginBottom="12dp" />
+
+        <EditText
+            android:id="@+id/etRadius"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/radius_hint"
+            android:inputType="number" />
+
+    </LinearLayout>
+</ScrollView>
