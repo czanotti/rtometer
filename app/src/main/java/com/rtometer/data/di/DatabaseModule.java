@@ -7,6 +7,7 @@ import androidx.room.Room;
 import com.rtometer.data.db.AppConfigDao;
 import com.rtometer.data.db.AppDatabase;
 import com.rtometer.data.db.AttendanceDayDao;
+import com.rtometer.data.db.BankHolidayDao;
 import com.rtometer.data.db.OfficeDao;
 import com.rtometer.data.db.QuarterDao;
 
@@ -25,7 +26,9 @@ public class DatabaseModule {
     @Provides
     @Singleton
     public AppDatabase provideDatabase(@ApplicationContext Context context) {
-        return Room.databaseBuilder(context, AppDatabase.class, "rtometer.db").build();
+        return Room.databaseBuilder(context, AppDatabase.class, "rtometer.db")
+                .addMigrations(AppDatabase.MIGRATION_1_2)
+                .build();
     }
 
     @Provides
@@ -46,5 +49,10 @@ public class DatabaseModule {
     @Provides
     public AppConfigDao provideAppConfigDao(AppDatabase db) {
         return db.appConfigDao();
+    }
+
+    @Provides
+    public BankHolidayDao provideBankHolidayDao(AppDatabase db) {
+        return db.bankHolidayDao();
     }
 }
