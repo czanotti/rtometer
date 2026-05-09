@@ -5,6 +5,7 @@ import android.content.Context;
 import androidx.room.Room;
 
 import com.rtometer.dashboard.DashboardRepository;
+import com.rtometer.history.HistoryRepository;
 import com.rtometer.data.db.AppConfigDao;
 import com.rtometer.data.db.AppDatabase;
 import com.rtometer.data.db.AttendanceDayDao;
@@ -63,5 +64,13 @@ public class DatabaseModule {
                                                            AttendanceDayDao attendanceDayDao,
                                                            BankHolidayDao bankHolidayDao) {
         return new DashboardRepository(quarterDao, attendanceDayDao, bankHolidayDao);
+    }
+
+    @Provides
+    @Singleton
+    public HistoryRepository provideHistoryRepository(QuarterDao quarterDao,
+                                                       AttendanceDayDao attendanceDayDao,
+                                                       BankHolidayDao bankHolidayDao) {
+        return new HistoryRepository(quarterDao, attendanceDayDao, bankHolidayDao);
     }
 }
