@@ -4,6 +4,7 @@ import android.content.Context;
 
 import androidx.room.Room;
 
+import com.rtometer.dashboard.DashboardRepository;
 import com.rtometer.data.db.AppConfigDao;
 import com.rtometer.data.db.AppDatabase;
 import com.rtometer.data.db.AttendanceDayDao;
@@ -54,5 +55,13 @@ public class DatabaseModule {
     @Provides
     public BankHolidayDao provideBankHolidayDao(AppDatabase db) {
         return db.bankHolidayDao();
+    }
+
+    @Provides
+    @Singleton
+    public DashboardRepository provideDashboardRepository(QuarterDao quarterDao,
+                                                           AttendanceDayDao attendanceDayDao,
+                                                           BankHolidayDao bankHolidayDao) {
+        return new DashboardRepository(quarterDao, attendanceDayDao, bankHolidayDao);
     }
 }

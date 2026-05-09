@@ -30,9 +30,12 @@ public class QuarterCalculator {
                 quarter.startDate, quarter.endDate, bankHolidaySet, statusByDate);
 
         int daysAttended = quarter.preloadCount;
+        int daysNotInOffice = 0;
         for (AttendanceDay d : days) {
             if (d.status == DayStatus.IN_OFFICE) {
                 daysAttended++;
+            } else if (d.status == DayStatus.NOT_IN_OFFICE) {
+                daysNotInOffice++;
             }
         }
 
@@ -56,7 +59,7 @@ public class QuarterCalculator {
             paceStatus = PaceStatus.RED;
         }
 
-        return new QuarterStats(totalWorkingDays, daysAttended, percentage, daysNeeded, daysRemaining, paceStatus);
+        return new QuarterStats(totalWorkingDays, daysAttended, daysNotInOffice, percentage, daysNeeded, daysRemaining, paceStatus);
     }
 
     private static int countWorkingDays(
