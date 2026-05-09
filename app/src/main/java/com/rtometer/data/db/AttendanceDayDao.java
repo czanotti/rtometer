@@ -1,5 +1,6 @@
 package com.rtometer.data.db;
 
+import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Insert;
 import androidx.room.Query;
@@ -26,4 +27,7 @@ public interface AttendanceDayDao {
 
     @Query("DELETE FROM attendance_days WHERE quarterId = :quarterId")
     void deleteByQuarterId(long quarterId);
+
+    @Query("SELECT * FROM attendance_days WHERE quarterId = :quarterId")
+    LiveData<List<AttendanceDay>> observeByQuarterId(long quarterId);
 }
