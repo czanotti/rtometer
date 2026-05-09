@@ -1,5 +1,6 @@
 package com.rtometer.data.db;
 
+import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
@@ -30,4 +31,7 @@ public interface QuarterDao {
 
     @Query("SELECT * FROM quarters WHERE startDate <= :date AND endDate >= :date LIMIT 1")
     Quarter getByDate(String date);
+
+    @Query("SELECT * FROM quarters WHERE startDate <= :date AND endDate >= :date LIMIT 1")
+    LiveData<Quarter> observeByDate(String date);
 }

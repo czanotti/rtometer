@@ -54,4 +54,17 @@
     <string name="preload_no">No, start from zero</string>
     <string name="preload_yes">Yes — enter the number of days I attended</string>
     <string name="preload_count_hint">Days</string>
+
+    <!-- Dashboard -->
+    <string name="dashboard_empty_title">No quarter configured</string>
+    <string name="dashboard_empty_subtitle">Complete setup to start tracking</string>
+    <string name="dashboard_quarter_label">%1$s Q%2$d · %3$s – %4$s</string>
+    <string name="dashboard_target_label">Target: %1$d%%</string>
+    <string name="dashboard_pace_green">● On Track</string>
+    <string name="dashboard_pace_amber">● At Risk</string>
+    <string name="dashboard_pace_red">● Behind</string>
+    <string name="dashboard_days_in_office">Days in office</string>
+    <string name="dashboard_days_out">Days out</string>
+    <string name="dashboard_days_remaining">Days remaining</string>
+    <string name="dashboard_days_needed">Days needed</string>
 </resources>
