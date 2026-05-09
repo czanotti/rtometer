@@ -8,7 +8,7 @@
 ### Remaining (in dependency order)
 
 - [x] RTO-3: Data model — Quarter, Office, AttendanceDay, AppConfig (Room entities + DAOs)
-- [ ] RTO-4: QuarterCalculatorModule — working days, percentage, pace logic
+- [x] RTO-4: QuarterCalculatorModule — working days, percentage, pace logic
 - [ ] RTO-5: Fiscal quarter presets + custom config
 - [ ] RTO-6: Bank holiday presets (IT, GB, US, DE, FR) + manual add/remove
 - [ ] RTO-7: Onboarding wizard (6 screens: quarter → target → hours → office → holidays → pre-load)
