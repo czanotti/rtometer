@@ -1,5 +1,6 @@
 package com.rtometer.data.db;
 
+import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
@@ -31,4 +32,7 @@ public interface BankHolidayDao {
 
     @Query("SELECT date FROM bank_holidays WHERE year = :year ORDER BY date ASC")
     List<LocalDate> getDatesForYear(int year);
+
+    @Query("SELECT date FROM bank_holidays WHERE year = :year ORDER BY date ASC")
+    LiveData<List<LocalDate>> observeDatesForYear(int year);
 }
