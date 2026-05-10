@@ -59,6 +59,7 @@
     <string name="nav_dashboard">Dashboard</string>
     <string name="nav_calendar">Calendar</string>
     <string name="nav_history">History</string>
+    <string name="nav_settings">Settings</string>
 
     <!-- Office setup -->
     <string name="office_setup_title">Manage Offices</string>
