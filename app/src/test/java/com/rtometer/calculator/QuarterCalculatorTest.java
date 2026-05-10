@@ -62,25 +62,63 @@ public class QuarterCalculatorTest {
     }
 
     @Test
-    public void totalWorkingDays_excludesSickDays() {
+    public void totalWorkingDays_doesNotExcludeSickDays() {
         Quarter q = twoWeekQuarter();
         QuarterStats s = QuarterCalculator.calculate(
                 q,
                 List.of(day(q, LocalDate.of(2025, 1, 7), DayStatus.SICK)),
                 Collections.emptyList(),
                 LocalDate.of(2025, 1, 6));
-        assertEquals(9, s.totalWorkingDays);
+        assertEquals(10, s.totalWorkingDays);
     }
 
     @Test
-    public void totalWorkingDays_excludesPersonalHolidays() {
+    public void totalWorkingDays_doesNotExcludePersonalHolidays() {
         Quarter q = twoWeekQuarter();
         QuarterStats s = QuarterCalculator.calculate(
                 q,
                 List.of(day(q, LocalDate.of(2025, 1, 8), DayStatus.HOLIDAY)),
                 Collections.emptyList(),
                 LocalDate.of(2025, 1, 6));
-        assertEquals(9, s.totalWorkingDays);
+        assertEquals(10, s.totalWorkingDays);
+    }
+
+    @Test
+    public void fy27q1_has66WorkingDays() {
+        // May 1 – Jul 31 2026: 21 + 22 + 23 = 66 weekdays, no bank holidays
+        Quarter q = new Quarter();
+        q.fiscalYear = 2027;
+        q.quarterNumber = 1;
+        q.startDate = LocalDate.of(2026, 5, 1);
+        q.endDate = LocalDate.of(2026, 7, 31);
+        q.targetPercentage = 0.5f;
+        q.preloadCount = 0;
+        QuarterStats s = QuarterCalculator.calculate(q, Collections.emptyList(), Collections.emptyList(), LocalDate.of(2026, 5, 1));
+        assertEquals(66, s.totalWorkingDays);
+    }
+
+    @Test
+    public void sickDayReducesNumeratorNotDenominator() {
+        Quarter q = twoWeekQuarter(); // 10 working days
+        List<AttendanceDay> days = List.of(
+                day(q, LocalDate.of(2025, 1, 6), DayStatus.IN_OFFICE),
+                day(q, LocalDate.of(2025, 1, 7), DayStatus.SICK)
+        );
+        QuarterStats s = QuarterCalculator.calculate(q, days, Collections.emptyList(), LocalDate.of(2025, 1, 6));
+        assertEquals(10, s.totalWorkingDays);
+        assertEquals(1, s.daysAttended);
+    }
+
+    @Test
+    public void holidayDayReducesNumeratorNotDenominator() {
+        Quarter q = twoWeekQuarter(); // 10 working days
+        List<AttendanceDay> days = List.of(
+                day(q, LocalDate.of(2025, 1, 6), DayStatus.IN_OFFICE),
+                day(q, LocalDate.of(2025, 1, 7), DayStatus.HOLIDAY)
+        );
+        QuarterStats s = QuarterCalculator.calculate(q, days, Collections.emptyList(), LocalDate.of(2025, 1, 6));
+        assertEquals(10, s.totalWorkingDays);
+        assertEquals(1, s.daysAttended);
     }
 
     @Test
