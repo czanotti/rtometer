@@ -12,10 +12,13 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.rtometer.R;
 import com.rtometer.data.model.DayStatus;
 
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 public class CalendarAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
@@ -29,6 +32,10 @@ public class CalendarAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     interface OnDayClickListener {
         void onDayClick(CalendarDay day);
+    }
+
+    interface OnBulkDayToggleListener {
+        void onBulkDayToggle(CalendarDay day);
     }
 
     static class Item {
@@ -50,9 +57,26 @@ public class CalendarAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     private final List<Item> items = new ArrayList<>();
     private OnDayClickListener listener;
+    private OnBulkDayToggleListener bulkToggleListener;
+    private boolean bulkMode = false;
+    private Set<LocalDate> bulkSelected = Collections.emptySet();
 
     public void setOnDayClickListener(OnDayClickListener l) {
         this.listener = l;
+    }
+
+    public void setOnBulkDayToggleListener(OnBulkDayToggleListener l) {
+        this.bulkToggleListener = l;
+    }
+
+    public void setBulkMode(boolean enabled) {
+        this.bulkMode = enabled;
+        notifyDataSetChanged();
+    }
+
+    public void setBulkSelectedDays(Set<LocalDate> selected) {
+        this.bulkSelected = selected != null ? selected : Collections.emptySet();
+        notifyDataSetChanged();
     }
 
     public void setData(List<CalendarMonth> months) {
@@ -101,7 +125,7 @@ public class CalendarAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         if (holder instanceof LabelHolder) {
             ((LabelHolder) holder).text.setText(item.label);
         } else if (holder instanceof DayHolder) {
-            ((DayHolder) holder).bind(item.day, listener);
+            ((DayHolder) holder).bind(item.day, listener, bulkMode, bulkSelected, bulkToggleListener);
         }
     }
 
@@ -129,34 +153,39 @@ public class CalendarAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             overrideIndicator = v.findViewById(R.id.overrideIndicator);
         }
 
-        void bind(CalendarDay day, OnDayClickListener listener) {
+        void bind(CalendarDay day, OnDayClickListener listener,
+                  boolean inBulkMode, Set<LocalDate> selected, OnBulkDayToggleListener bulkListener) {
             dayNumber.setText(String.valueOf(day.date.getDayOfMonth()));
             overrideIndicator.setVisibility(day.isManualOverride ? View.VISIBLE : View.GONE);
+            dayNumber.setTypeface(null, day.isToday ? android.graphics.Typeface.BOLD : android.graphics.Typeface.NORMAL);
 
-            // Background tint by status / day type
             int bg = Color.TRANSPARENT;
-            if (day.status == DayStatus.IN_OFFICE) {
-                bg = 0xFFB8E6B8; // green
+            if (inBulkMode && selected.contains(day.date)) {
+                bg = 0xFFFFE082; // amber — distinct selection highlight
+            } else if (day.status == DayStatus.IN_OFFICE) {
+                bg = 0xFFB8E6B8;
             } else if (day.status == DayStatus.SICK) {
-                bg = 0xFFFFDDB3; // orange
+                bg = 0xFFFFDDB3;
             } else if (day.status == DayStatus.HOLIDAY) {
-                bg = 0xFFB3D9FF; // blue
+                bg = 0xFFB3D9FF;
             } else if (day.isWeekend || day.isBankHoliday) {
-                bg = 0xFFEEEEEE; // gray
+                bg = 0xFFEEEEEE;
             }
             itemView.setBackgroundColor(bg);
 
-            if (day.isToday) {
-                dayNumber.setTypeface(null, android.graphics.Typeface.BOLD);
+            if (inBulkMode) {
+                itemView.setOnClickListener(v -> {
+                    if (bulkListener != null && !day.isBankHoliday && !day.date.isAfter(LocalDate.now())) {
+                        bulkListener.onBulkDayToggle(day);
+                    }
+                });
             } else {
-                dayNumber.setTypeface(null, android.graphics.Typeface.NORMAL);
+                itemView.setOnClickListener(v -> {
+                    if (listener != null && !day.isWeekend && !day.isBankHoliday) {
+                        listener.onDayClick(day);
+                    }
+                });
             }
-
-            itemView.setOnClickListener(v -> {
-                if (listener != null && !day.isWeekend && !day.isBankHoliday) {
-                    listener.onDayClick(day);
-                }
-            });
         }
     }
 }
