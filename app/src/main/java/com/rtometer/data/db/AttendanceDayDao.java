@@ -28,6 +28,9 @@ public interface AttendanceDayDao {
     @Query("DELETE FROM attendance_days WHERE quarterId = :quarterId")
     void deleteByQuarterId(long quarterId);
 
+    @Query("DELETE FROM attendance_days WHERE date = :date")
+    void deleteByDate(String date);
+
     @Query("SELECT * FROM attendance_days WHERE quarterId = :quarterId")
     LiveData<List<AttendanceDay>> observeByQuarterId(long quarterId);
 }

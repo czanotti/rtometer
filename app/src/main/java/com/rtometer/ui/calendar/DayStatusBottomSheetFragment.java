@@ -53,6 +53,10 @@ public class DayStatusBottomSheetFragment extends BottomSheetDialogFragment {
         view.findViewById(R.id.btnNotInOffice).setOnClickListener(v -> pick(vm, date, DayStatus.NOT_IN_OFFICE));
         view.findViewById(R.id.btnSick).setOnClickListener(v -> pick(vm, date, DayStatus.SICK));
         view.findViewById(R.id.btnHoliday).setOnClickListener(v -> pick(vm, date, DayStatus.HOLIDAY));
+        view.findViewById(R.id.btnClear).setOnClickListener(v -> {
+            vm.clearDayStatus(date);
+            dismiss();
+        });
     }
 
     private void pick(CalendarViewModel vm, LocalDate date, DayStatus status) {

@@ -119,4 +119,14 @@
     <string name="dashboard_days_out">Days out</string>
     <string name="dashboard_days_remaining">Days remaining</string>
     <string name="dashboard_days_needed">Days needed</string>
+
+    <!-- Calendar bulk selection -->
+    <string name="bulk_mode_enter">Bulk select days</string>
+    <string name="bulk_in_office">In Office</string>
+    <string name="bulk_not_in_office">Not In</string>
+    <string name="bulk_sick">Sick</string>
+    <string name="bulk_holiday">Holiday</string>
+    <string name="bulk_apply">Apply</string>
+    <string name="bulk_cancel">Cancel</string>
+    <string name="bulk_clear">Clear</string>
 </resources>

@@ -37,6 +37,15 @@ public class CalendarViewModel extends ViewModel {
     private final MutableLiveData<List<CalendarMonth>> monthsLive = new MutableLiveData<>();
     public final LiveData<List<CalendarMonth>> months = monthsLive;
 
+    private final MutableLiveData<Boolean> bulkModeLive = new MutableLiveData<>(false);
+    public final LiveData<Boolean> bulkMode = bulkModeLive;
+
+    private final MutableLiveData<Set<LocalDate>> bulkSelectedDaysLive = new MutableLiveData<>(new HashSet<>());
+    public final LiveData<Set<LocalDate>> bulkSelectedDays = bulkSelectedDaysLive;
+
+    private final MutableLiveData<DayStatus> bulkSelectedStatusLive = new MutableLiveData<>(DayStatus.IN_OFFICE);
+    public final LiveData<DayStatus> bulkSelectedStatus = bulkSelectedStatusLive;
+
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     @VisibleForTesting
@@ -71,6 +80,73 @@ public class CalendarViewModel extends ViewModel {
         });
     }
 
+    public void enterBulkMode() {
+        bulkModeLive.setValue(true);
+    }
+
+    public void exitBulkMode() {
+        bulkModeLive.setValue(false);
+        bulkSelectedDaysLive.setValue(new HashSet<>());
+    }
+
+    public void clearBulkSelection() {
+        bulkSelectedDaysLive.setValue(new HashSet<>());
+    }
+
+    public void toggleBulkDay(LocalDate date) {
+        Set<LocalDate> current = new HashSet<>(
+                bulkSelectedDaysLive.getValue() != null ? bulkSelectedDaysLive.getValue() : new HashSet<>());
+        if (!current.remove(date)) current.add(date);
+        bulkSelectedDaysLive.setValue(current);
+    }
+
+    public void setBulkStatus(@androidx.annotation.Nullable DayStatus status) {
+        bulkSelectedStatusLive.setValue(status);
+    }
+
+    public void applyBulkStatus() {
+        DayStatus status = bulkSelectedStatusLive.getValue();
+        Set<LocalDate> days = bulkSelectedDaysLive.getValue();
+        if (days == null || days.isEmpty()) { exitBulkMode(); return; }
+        Set<LocalDate> snapshot = new HashSet<>(days);
+        long qId = loadedQuarterId;
+        executor.execute(() -> {
+            for (LocalDate date : snapshot) {
+                if (status == null) deleteStatus(date);
+                else writeStatus(date, status, qId);
+            }
+            bulkModeLive.postValue(false);
+            bulkSelectedDaysLive.postValue(new HashSet<>());
+            if (qId >= 0) refresh(qId);
+        });
+    }
+
+    @VisibleForTesting
+    void applyBulkStatusSync() {
+        DayStatus status = bulkSelectedStatusLive.getValue();
+        Set<LocalDate> days = bulkSelectedDaysLive.getValue();
+        if (days == null || days.isEmpty()) { exitBulkMode(); return; }
+        for (LocalDate date : new HashSet<>(days)) {
+            if (status == null) deleteStatus(date);
+            else writeStatus(date, status, loadedQuarterId);
+        }
+        bulkModeLive.setValue(false);
+        bulkSelectedDaysLive.setValue(new HashSet<>());
+    }
+
+    public void clearDayStatus(LocalDate date) {
+        long qId = loadedQuarterId;
+        executor.execute(() -> {
+            deleteStatus(date);
+            if (qId >= 0) refresh(qId);
+        });
+    }
+
+    @VisibleForTesting
+    void clearDayStatusSync(LocalDate date) {
+        deleteStatus(date);
+    }
+
     @Override
     protected void onCleared() {
         executor.shutdown();
@@ -81,6 +157,10 @@ public class CalendarViewModel extends ViewModel {
     @VisibleForTesting
     void updateDayStatusSync(LocalDate date, DayStatus newStatus) {
         writeStatus(date, newStatus, loadedQuarterId);
+    }
+
+    private void deleteStatus(LocalDate date) {
+        dayDao.deleteByDate(date.toString());
     }
 
     private void writeStatus(LocalDate date, DayStatus newStatus, long fallbackQuarterId) {
