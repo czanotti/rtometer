@@ -20,6 +20,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import javax.inject.Inject;
@@ -36,6 +37,8 @@ public class CalendarViewModel extends ViewModel {
     private final MutableLiveData<List<CalendarMonth>> monthsLive = new MutableLiveData<>();
     public final LiveData<List<CalendarMonth>> months = monthsLive;
 
+    private final ExecutorService executor = Executors.newSingleThreadExecutor();
+
     @VisibleForTesting
     long loadedQuarterId = -1;
 
@@ -49,7 +52,7 @@ public class CalendarViewModel extends ViewModel {
 
     public void loadQuarter(long quarterId) {
         loadedQuarterId = quarterId;
-        Executors.newSingleThreadExecutor().execute(() -> refresh(quarterId));
+        executor.execute(() -> refresh(quarterId));
     }
 
     private void refresh(long quarterId) {
@@ -62,10 +65,17 @@ public class CalendarViewModel extends ViewModel {
 
     public void updateDayStatus(LocalDate date, DayStatus newStatus) {
         long qId = loadedQuarterId;
-        Executors.newSingleThreadExecutor().execute(() -> {
+        executor.execute(() -> {
             writeStatus(date, newStatus, qId);
             if (qId >= 0) refresh(qId);
         });
+    }
+
+    @Override
+    protected void onCleared() {
+        executor.shutdown();
+        try { executor.awaitTermination(5, java.util.concurrent.TimeUnit.SECONDS); }
+        catch (InterruptedException ignored) { Thread.currentThread().interrupt(); }
     }
 
     @VisibleForTesting

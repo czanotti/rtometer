@@ -8,6 +8,7 @@ import com.rtometer.data.db.Office;
 import com.rtometer.data.db.OfficeDao;
 
 import java.util.List;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import javax.inject.Inject;
@@ -18,6 +19,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel;
 public class OfficeSetupViewModel extends ViewModel {
 
     final OfficeDao officeDao;
+    private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     private final MutableLiveData<List<Office>> officesLive = new MutableLiveData<>(new java.util.ArrayList<>());
     public final LiveData<List<Office>> offices = officesLive;
@@ -25,18 +27,18 @@ public class OfficeSetupViewModel extends ViewModel {
     @Inject
     public OfficeSetupViewModel(OfficeDao officeDao) {
         this.officeDao = officeDao;
-        Executors.newSingleThreadExecutor().execute(this::reload);
+        executor.execute(this::reload);
     }
 
     public void addOffice(String name, double lat, double lon, int radiusMeters) {
-        Executors.newSingleThreadExecutor().execute(() -> {
+        executor.execute(() -> {
             insertOffice(name, lat, lon, radiusMeters);
             reload();
         });
     }
 
     public void updateOffice(Office office) {
-        Executors.newSingleThreadExecutor().execute(() -> {
+        executor.execute(() -> {
             officeDao.update(office);
             reload();
         });
@@ -45,11 +47,18 @@ public class OfficeSetupViewModel extends ViewModel {
     public boolean deleteOffice(Office office) {
         List<Office> current = officesLive.getValue();
         if (current == null || current.size() <= 1) return false;
-        Executors.newSingleThreadExecutor().execute(() -> {
+        executor.execute(() -> {
             officeDao.delete(office);
             reload();
         });
         return true;
+    }
+
+    @Override
+    protected void onCleared() {
+        executor.shutdown();
+        try { executor.awaitTermination(5, java.util.concurrent.TimeUnit.SECONDS); }
+        catch (InterruptedException ignored) { Thread.currentThread().interrupt(); }
     }
 
     private void insertOffice(String name, double lat, double lon, int radiusMeters) {

@@ -38,6 +38,10 @@ import static org.junit.Assert.assertTrue;
 @Config(sdk = 34)
 public class GpsDetectionWorkerTest {
 
+    // WorkManager is a singleton — initialize it once per class to avoid
+    // abandoning multiple WorkDatabase instances that leak via CloseGuard.
+    private static boolean wmInitialized = false;
+
     private AppDatabase db;
     private AttendanceDayDao dayDao;
     private OfficeDao officeDao;
@@ -59,10 +63,13 @@ public class GpsDetectionWorkerTest {
         officeDao = db.officeDao();
         quarterDao = db.quarterDao();
 
-        Configuration config = new Configuration.Builder()
-                .setMinimumLoggingLevel(Log.DEBUG)
-                .build();
-        WorkManagerTestInitHelper.initializeTestWorkManager(context, config);
+        if (!wmInitialized) {
+            Configuration config = new Configuration.Builder()
+                    .setMinimumLoggingLevel(Log.DEBUG)
+                    .build();
+            WorkManagerTestInitHelper.initializeTestWorkManager(context, config);
+            wmInitialized = true;
+        }
     }
 
     @After

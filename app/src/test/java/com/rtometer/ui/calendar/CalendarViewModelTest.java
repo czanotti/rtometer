@@ -60,6 +60,7 @@ public class CalendarViewModelTest {
 
     @After
     public void teardown() {
+        vm.onCleared();
         db.close();
     }
 
