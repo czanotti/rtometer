@@ -1,25 +1,34 @@
 package com.rtometer.ui.main;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.rtometer.R;
+import com.rtometer.gps.LocationPermissionChecker;
 import com.rtometer.ui.calendar.CalendarFragment;
 import com.rtometer.ui.dashboard.DashboardFragment;
 import com.rtometer.ui.history.HistoryFragment;
 import com.rtometer.ui.office.OfficeSetupActivity;
 import com.rtometer.ui.onboarding.OnboardingActivity;
+import com.rtometer.ui.settings.SettingsActivity;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
 public class MainActivity extends AppCompatActivity {
+
+    private LinearLayout gpsBanner;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,6 +43,10 @@ public class MainActivity extends AppCompatActivity {
         }
 
         setContentView(R.layout.activity_main);
+
+        gpsBanner = findViewById(R.id.gpsBanner);
+        TextView settingsLink = findViewById(R.id.gpsBannerSettings);
+        settingsLink.setOnClickListener(v -> openLocationSettings());
 
         BottomNavigationView bottomNav = findViewById(R.id.bottomNav);
 
@@ -55,6 +68,29 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        if (gpsBanner != null) {
+            updateGpsBanner();
+        }
+    }
+
+    private void updateGpsBanner() {
+        boolean denied = LocationPermissionChecker.isDenied(this);
+        if (denied && LocationPermissionChecker.hasBackgroundLocation(this)) {
+            LocationPermissionChecker.setDenied(this, false);
+            denied = false;
+        }
+        gpsBanner.setVisibility(denied ? View.VISIBLE : View.GONE);
+    }
+
+    private void openLocationSettings() {
+        Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                Uri.fromParts("package", getPackageName(), null));
+        startActivity(intent);
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
@@ -64,6 +100,10 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.action_manage_offices) {
             startActivity(new Intent(this, OfficeSetupActivity.class));
+            return true;
+        }
+        if (item.getItemId() == R.id.action_settings) {
+            startActivity(new Intent(this, SettingsActivity.class));
             return true;
         }
         return super.onOptionsItemSelected(item);

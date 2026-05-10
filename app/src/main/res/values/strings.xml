@@ -83,6 +83,26 @@
     <string name="history_target_met">Target met ✓</string>
     <string name="history_target_missed">Target missed</string>
 
+    <!-- Settings -->
+    <string name="settings_title">Settings</string>
+    <string name="menu_settings">Settings</string>
+    <string name="settings_section_hours">Working Hours</string>
+    <string name="settings_section_target">Attendance Target</string>
+    <string name="settings_section_quarter">Fiscal Quarter</string>
+    <string name="settings_quarter_warning">Changing preset or year will reset all quarters and delete attendance history.</string>
+    <string name="settings_section_offices">Offices</string>
+    <string name="settings_manage_offices">Manage Offices</string>
+    <string name="settings_section_holidays">Bank Holidays</string>
+    <string name="settings_country_none">None (no bank holidays)</string>
+    <string name="settings_save">Save</string>
+    <string name="settings_reset_title">Reset Quarters?</string>
+    <string name="settings_reset_message">This will delete all quarters and attendance history for the selected year and recreate them. This cannot be undone.</string>
+    <string name="settings_reset_confirm">Reset</string>
+
+    <!-- GPS banner -->
+    <string name="gps_banner_message">GPS detection is off. Days will not be auto-detected — log them manually.</string>
+    <string name="gps_banner_settings">Settings</string>
+
     <!-- Dashboard -->
     <string name="dashboard_empty_title">No quarter configured</string>
     <string name="dashboard_empty_subtitle">Complete setup to start tracking</string>
