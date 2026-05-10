@@ -16,4 +16,7 @@ public class AppConfig {
     @Nullable
     public String bankHolidayCountry;
     public int fiscalYearOffset = 1;
+    @Nullable
+    public String fiscalQuarterPreset;
+    public int customStartMonth = 1;
 }
