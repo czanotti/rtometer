@@ -15,7 +15,10 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.ViewModelProvider;
+
+import com.google.android.material.snackbar.Snackbar;
 
 import com.rtometer.R;
 import com.rtometer.calculator.FiscalQuarterPreset;
@@ -57,6 +60,9 @@ public class SettingsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
+
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setTitle(R.string.settings_title);
@@ -97,6 +103,8 @@ public class SettingsActivity extends AppCompatActivity {
         pickerMonth.setValue(1);
 
         seekBarTarget.setMax(100);
+        seekBarTarget.setProgress(60);
+        tvTargetValue.setText("60%");
     }
 
     private void setupYearSpinner() {
@@ -238,7 +246,12 @@ public class SettingsActivity extends AppCompatActivity {
 
     private void onSaveTapped() {
         String gpsText = etGpsInterval.getText().toString().trim();
-        if (gpsText.isEmpty() || Integer.parseInt(gpsText) <= 0) return;
+        if (gpsText.isEmpty() || Integer.parseInt(gpsText) <= 0) {
+            etGpsInterval.setError(getString(R.string.settings_gps_error));
+            etGpsInterval.requestFocus();
+            return;
+        }
+        etGpsInterval.setError(null);
 
         FiscalQuarterPreset preset = selectedPreset();
         int customMonth = pickerMonth.getValue();
@@ -246,10 +259,16 @@ public class SettingsActivity extends AppCompatActivity {
         float target = seekBarTarget.getProgress() / 100f;
         String country = selectedCountry();
 
+        boolean noQuarters = currentQuarterId == null;
         boolean presetChanged = !preset.name().equals(originalPreset);
         boolean yearChanged = year != originalYear;
 
-        if (presetChanged || yearChanged) {
+        if (noQuarters) {
+            viewModel.resetQuarters(preset, customMonth, year, target);
+            viewModel.saveConfig(workStart, workEnd, Integer.parseInt(gpsText),
+                    country, preset, customMonth);
+            finish();
+        } else if (presetChanged || yearChanged) {
             new AlertDialog.Builder(this)
                     .setTitle(R.string.settings_reset_title)
                     .setMessage(R.string.settings_reset_message)
@@ -264,11 +283,21 @@ public class SettingsActivity extends AppCompatActivity {
         } else {
             viewModel.saveConfig(workStart, workEnd, Integer.parseInt(gpsText),
                     country, preset, customMonth);
-            if (currentQuarterId != null) {
-                viewModel.saveQuarterTarget(currentQuarterId, target);
-            }
-            finish();
+            viewModel.saveQuarterTarget(currentQuarterId, target);
+            showSavedAndFinish();
         }
+    }
+
+    private void showSavedAndFinish() {
+        Snackbar.make(findViewById(android.R.id.content),
+                        R.string.settings_saved, Snackbar.LENGTH_SHORT)
+                .addCallback(new Snackbar.Callback() {
+                    @Override
+                    public void onDismissed(Snackbar sb, int event) {
+                        finish();
+                    }
+                })
+                .show();
     }
 
     @Override

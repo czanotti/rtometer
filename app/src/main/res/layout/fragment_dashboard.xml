@@ -32,6 +32,13 @@
             android:text="@string/dashboard_empty_subtitle"
             android:textSize="14sp"
             android:layout_marginTop="8dp" />
+
+        <Button
+            android:id="@+id/btnGoToSettings"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/dashboard_empty_cta"
+            android:layout_marginTop="16dp" />
     </LinearLayout>
 
     <!-- Dashboard content -->
