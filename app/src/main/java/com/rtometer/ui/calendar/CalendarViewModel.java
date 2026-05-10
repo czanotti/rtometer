@@ -100,21 +100,21 @@ public class CalendarViewModel extends ViewModel {
         bulkSelectedDaysLive.setValue(current);
     }
 
-    public void setBulkStatus(DayStatus status) {
+    public void setBulkStatus(@androidx.annotation.Nullable DayStatus status) {
         bulkSelectedStatusLive.setValue(status);
     }
 
     public void applyBulkStatus() {
         DayStatus status = bulkSelectedStatusLive.getValue();
         Set<LocalDate> days = bulkSelectedDaysLive.getValue();
-        if (status == null || days == null || days.isEmpty()) {
-            exitBulkMode();
-            return;
-        }
+        if (days == null || days.isEmpty()) { exitBulkMode(); return; }
         Set<LocalDate> snapshot = new HashSet<>(days);
         long qId = loadedQuarterId;
         executor.execute(() -> {
-            for (LocalDate date : snapshot) writeStatus(date, status, qId);
+            for (LocalDate date : snapshot) {
+                if (status == null) deleteStatus(date);
+                else writeStatus(date, status, qId);
+            }
             bulkModeLive.postValue(false);
             bulkSelectedDaysLive.postValue(new HashSet<>());
             if (qId >= 0) refresh(qId);
@@ -125,13 +125,26 @@ public class CalendarViewModel extends ViewModel {
     void applyBulkStatusSync() {
         DayStatus status = bulkSelectedStatusLive.getValue();
         Set<LocalDate> days = bulkSelectedDaysLive.getValue();
-        if (status == null || days == null || days.isEmpty()) {
-            exitBulkMode();
-            return;
+        if (days == null || days.isEmpty()) { exitBulkMode(); return; }
+        for (LocalDate date : new HashSet<>(days)) {
+            if (status == null) deleteStatus(date);
+            else writeStatus(date, status, loadedQuarterId);
         }
-        for (LocalDate date : new HashSet<>(days)) writeStatus(date, status, loadedQuarterId);
         bulkModeLive.setValue(false);
         bulkSelectedDaysLive.setValue(new HashSet<>());
+    }
+
+    public void clearDayStatus(LocalDate date) {
+        long qId = loadedQuarterId;
+        executor.execute(() -> {
+            deleteStatus(date);
+            if (qId >= 0) refresh(qId);
+        });
+    }
+
+    @VisibleForTesting
+    void clearDayStatusSync(LocalDate date) {
+        deleteStatus(date);
     }
 
     @Override
@@ -144,6 +157,10 @@ public class CalendarViewModel extends ViewModel {
     @VisibleForTesting
     void updateDayStatusSync(LocalDate date, DayStatus newStatus) {
         writeStatus(date, newStatus, loadedQuarterId);
+    }
+
+    private void deleteStatus(LocalDate date) {
+        dayDao.deleteByDate(date.toString());
     }
 
     private void writeStatus(LocalDate date, DayStatus newStatus, long fallbackQuarterId) {

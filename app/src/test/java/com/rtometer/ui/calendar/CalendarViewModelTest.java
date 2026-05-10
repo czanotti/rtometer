@@ -324,6 +324,52 @@ public class CalendarViewModelTest {
         assertTrue(vm.bulkMode.getValue());
     }
 
+    @Test
+    public void clearDayStatusSync_deletesExistingRecord() {
+        Quarter q = quarter(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 3, 31));
+        long qId = quarterDao.insert(q);
+        vm.loadedQuarterId = qId;
+
+        AttendanceDay ad = new AttendanceDay();
+        ad.date = LocalDate.of(2025, 1, 6);
+        ad.quarterId = qId;
+        ad.status = DayStatus.IN_OFFICE;
+        ad.isManualOverride = false;
+        dayDao.insert(ad);
+
+        vm.clearDayStatusSync(LocalDate.of(2025, 1, 6));
+
+        assertNull(dayDao.getByDate("2025-01-06"));
+    }
+
+    @Test
+    public void clearDayStatusSync_nonExistentDay_doesNotCrash() {
+        vm.loadedQuarterId = 1;
+        vm.clearDayStatusSync(LocalDate.of(2025, 1, 6)); // no record — must not throw
+    }
+
+    @Test
+    public void applyBulkStatusSync_withNullStatus_deletesSelectedDays() {
+        Quarter q = quarter(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 3, 31));
+        long qId = quarterDao.insert(q);
+        vm.loadedQuarterId = qId;
+
+        AttendanceDay ad = new AttendanceDay();
+        ad.date = LocalDate.of(2025, 1, 6);
+        ad.quarterId = qId;
+        ad.status = DayStatus.SICK;
+        ad.isManualOverride = true;
+        dayDao.insert(ad);
+
+        vm.setBulkStatus(null);
+        vm.toggleBulkDay(LocalDate.of(2025, 1, 6));
+        vm.applyBulkStatusSync();
+
+        assertNull(dayDao.getByDate("2025-01-06"));
+        assertFalse(vm.bulkMode.getValue());
+        assertTrue(vm.bulkSelectedDays.getValue().isEmpty());
+    }
+
     // ── helpers ───────────────────────────────────────────────────────────────
 
     private static Quarter quarter(LocalDate start, LocalDate end) {
