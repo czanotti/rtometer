@@ -6,8 +6,10 @@ import androidx.lifecycle.ViewModel;
 
 import com.rtometer.calculator.FiscalQuarterFactory;
 import com.rtometer.calculator.FiscalQuarterPreset;
+import com.rtometer.data.BankHolidayFetcher;
 import com.rtometer.data.db.AppConfig;
 import com.rtometer.data.db.AppConfigDao;
+import com.rtometer.data.db.BankHolidayDao;
 import com.rtometer.data.db.Office;
 import com.rtometer.data.db.OfficeDao;
 import com.rtometer.data.db.Quarter;
@@ -30,6 +32,7 @@ public class OnboardingViewModel extends ViewModel {
     private final QuarterDao quarterDao;
     private final OfficeDao officeDao;
     private final AppConfigDao configDao;
+    final BankHolidayDao bankHolidayDao;
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     private FiscalQuarterPreset preset = FiscalQuarterPreset.CALENDAR;
@@ -49,10 +52,12 @@ public class OnboardingViewModel extends ViewModel {
     private final MutableLiveData<Boolean> finished = new MutableLiveData<>();
 
     @Inject
-    public OnboardingViewModel(QuarterDao quarterDao, OfficeDao officeDao, AppConfigDao configDao) {
+    public OnboardingViewModel(QuarterDao quarterDao, OfficeDao officeDao, AppConfigDao configDao,
+                               BankHolidayDao bankHolidayDao) {
         this.quarterDao = quarterDao;
         this.officeDao = officeDao;
         this.configDao = configDao;
+        this.bankHolidayDao = bankHolidayDao;
     }
 
     public void setPreset(FiscalQuarterPreset preset) { this.preset = preset; }
@@ -115,6 +120,16 @@ public class OnboardingViewModel extends ViewModel {
         config.fiscalQuarterPreset = preset.name();
         config.customStartMonth = (preset == FiscalQuarterPreset.CUSTOM) ? customStartMonth : 1;
         configDao.upsert(config);
+
+        if (bankHolidayCountry != null) {
+            String code = bankHolidayCountry.name();
+            int year = LocalDate.now().getYear();
+            for (int y = year; y <= year + 1; y++) {
+                try {
+                    bankHolidayDao.insertAll(BankHolidayFetcher.fetch(code, y));
+                } catch (Exception ignored) {}
+            }
+        }
     }
 
     @Override

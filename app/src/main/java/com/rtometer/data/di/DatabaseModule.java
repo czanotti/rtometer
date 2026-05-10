@@ -29,7 +29,10 @@ public class DatabaseModule {
     @Singleton
     public AppDatabase provideDatabase(@ApplicationContext Context context) {
         return Room.databaseBuilder(context, AppDatabase.class, "rtometer.db")
-                .addMigrations(AppDatabase.MIGRATION_1_2)
+                .addMigrations(
+                        AppDatabase.MIGRATION_1_2,
+                        AppDatabase.MIGRATION_2_3,
+                        AppDatabase.MIGRATION_3_4)
                 .build();
     }
 

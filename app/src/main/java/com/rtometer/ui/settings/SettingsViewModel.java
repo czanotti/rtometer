@@ -50,6 +50,11 @@ public class SettingsViewModel extends ViewModel {
         }
         config.postValue(cfg);
         currentQuarter.postValue(quarterDao.getByDate(LocalDate.now().toString()));
+
+        if (cfg.bankHolidayCountry != null
+                && bankHolidayDao.getByYear(LocalDate.now().getYear()).isEmpty()) {
+            refreshBankHolidays(cfg.bankHolidayCountry);
+        }
     }
 
     public void saveConfig(LocalTime start, LocalTime end, int gps, String country,
