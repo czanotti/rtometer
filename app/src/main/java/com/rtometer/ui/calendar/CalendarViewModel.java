@@ -37,6 +37,15 @@ public class CalendarViewModel extends ViewModel {
     private final MutableLiveData<List<CalendarMonth>> monthsLive = new MutableLiveData<>();
     public final LiveData<List<CalendarMonth>> months = monthsLive;
 
+    private final MutableLiveData<Boolean> bulkModeLive = new MutableLiveData<>(false);
+    public final LiveData<Boolean> bulkMode = bulkModeLive;
+
+    private final MutableLiveData<Set<LocalDate>> bulkSelectedDaysLive = new MutableLiveData<>(new HashSet<>());
+    public final LiveData<Set<LocalDate>> bulkSelectedDays = bulkSelectedDaysLive;
+
+    private final MutableLiveData<DayStatus> bulkSelectedStatusLive = new MutableLiveData<>(DayStatus.IN_OFFICE);
+    public final LiveData<DayStatus> bulkSelectedStatus = bulkSelectedStatusLive;
+
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     @VisibleForTesting
@@ -69,6 +78,56 @@ public class CalendarViewModel extends ViewModel {
             writeStatus(date, newStatus, qId);
             if (qId >= 0) refresh(qId);
         });
+    }
+
+    public void enterBulkMode() {
+        bulkModeLive.setValue(true);
+    }
+
+    public void exitBulkMode() {
+        bulkModeLive.setValue(false);
+        bulkSelectedDaysLive.setValue(new HashSet<>());
+    }
+
+    public void toggleBulkDay(LocalDate date) {
+        Set<LocalDate> current = new HashSet<>(
+                bulkSelectedDaysLive.getValue() != null ? bulkSelectedDaysLive.getValue() : new HashSet<>());
+        if (!current.remove(date)) current.add(date);
+        bulkSelectedDaysLive.setValue(current);
+    }
+
+    public void setBulkStatus(DayStatus status) {
+        bulkSelectedStatusLive.setValue(status);
+    }
+
+    public void applyBulkStatus() {
+        DayStatus status = bulkSelectedStatusLive.getValue();
+        Set<LocalDate> days = bulkSelectedDaysLive.getValue();
+        if (status == null || days == null || days.isEmpty()) {
+            exitBulkMode();
+            return;
+        }
+        Set<LocalDate> snapshot = new HashSet<>(days);
+        long qId = loadedQuarterId;
+        executor.execute(() -> {
+            for (LocalDate date : snapshot) writeStatus(date, status, qId);
+            bulkModeLive.postValue(false);
+            bulkSelectedDaysLive.postValue(new HashSet<>());
+            if (qId >= 0) refresh(qId);
+        });
+    }
+
+    @VisibleForTesting
+    void applyBulkStatusSync() {
+        DayStatus status = bulkSelectedStatusLive.getValue();
+        Set<LocalDate> days = bulkSelectedDaysLive.getValue();
+        if (status == null || days == null || days.isEmpty()) {
+            exitBulkMode();
+            return;
+        }
+        for (LocalDate date : new HashSet<>(days)) writeStatus(date, status, loadedQuarterId);
+        bulkModeLive.setValue(false);
+        bulkSelectedDaysLive.setValue(new HashSet<>());
     }
 
     @Override
