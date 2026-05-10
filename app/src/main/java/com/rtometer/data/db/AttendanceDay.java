@@ -28,7 +28,8 @@ import java.time.LocalDate;
     },
     indices = {
         @Index("quarterId"),
-        @Index("date")
+        @Index("date"),
+        @Index("detectedOfficeId")
     }
 )
 public class AttendanceDay {
