@@ -99,10 +99,6 @@
     <string name="settings_reset_message">This will delete all quarters and attendance history for the selected year and recreate them. This cannot be undone.</string>
     <string name="settings_reset_confirm">Reset</string>
 
-    <!-- GPS banner -->
-    <string name="gps_banner_message">GPS detection is off. Days will not be auto-detected — log them manually.</string>
-    <string name="gps_banner_settings">Settings</string>
-
     <!-- Dashboard -->
     <string name="dashboard_empty_title">No quarter configured</string>
     <string name="dashboard_empty_subtitle">Complete setup to start tracking</string>
