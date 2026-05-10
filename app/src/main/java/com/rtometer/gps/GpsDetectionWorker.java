@@ -1,12 +1,11 @@
 package com.rtometer.gps;
 
-import android.Manifest;
 import android.content.Context;
-import android.content.pm.PackageManager;
+import android.location.Location;
+import android.location.LocationManager;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.VisibleForTesting;
-import androidx.core.content.ContextCompat;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
@@ -70,12 +69,24 @@ public class GpsDetectionWorker extends Worker {
         if (testLatLng != null) {
             return testLatLng;
         }
-        if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
+        if (!LocationPermissionChecker.hasBackgroundLocation(context)) {
+            LocationPermissionChecker.setDenied(context, true);
             return null;
         }
-        // Real GPS via FusedLocationProviderClient is wired up in RTO-14.
-        return null;
+        LocationPermissionChecker.setDenied(context, false);
+        try {
+            LocationManager lm = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+            Location loc = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+            if (loc == null) {
+                loc = lm.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+            }
+            if (loc == null) {
+                return null;
+            }
+            return new double[]{loc.getLatitude(), loc.getLongitude()};
+        } catch (SecurityException e) {
+            return null;
+        }
     }
 
     private void markInOffice(AttendanceDayDao dayDao, QuarterDao quarterDao,

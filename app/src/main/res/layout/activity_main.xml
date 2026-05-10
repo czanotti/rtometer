@@ -5,6 +5,33 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
+    <LinearLayout
+        android:id="@+id/gpsBanner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/colorSurfaceVariant"
+        android:orientation="horizontal"
+        android:padding="12dp"
+        android:visibility="gone">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/gps_banner_message"
+            android:textSize="13sp" />
+
+        <TextView
+            android:id="@+id/gpsBannerSettings"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginStart="8dp"
+            android:text="@string/gps_banner_settings"
+            android:textSize="13sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
     <FrameLayout
         android:id="@+id/fragmentContainer"
         android:layout_width="match_parent"
