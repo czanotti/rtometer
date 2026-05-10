@@ -34,4 +34,7 @@ public interface QuarterDao {
 
     @Query("SELECT * FROM quarters WHERE startDate <= :date AND endDate >= :date LIMIT 1")
     LiveData<Quarter> observeByDate(String date);
+
+    @Query("DELETE FROM quarters")
+    void deleteAll();
 }

@@ -34,6 +34,11 @@
             android:exported="false"
             android:label="@string/office_setup_title" />
 
+        <activity
+            android:name=".ui.settings.SettingsActivity"
+            android:exported="false"
+            android:label="@string/settings_title" />
+
     </application>
 
 </manifest>
