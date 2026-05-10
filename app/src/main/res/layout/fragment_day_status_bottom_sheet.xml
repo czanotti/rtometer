@@ -46,6 +46,14 @@
         style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
 
     <Button
+        android:id="@+id/btnBankHoliday"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:text="@string/status_bank_holiday"
+        style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
+
+    <Button
         android:id="@+id/btnClear"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

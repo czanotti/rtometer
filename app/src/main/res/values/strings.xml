@@ -126,6 +126,8 @@
     <string name="bulk_not_in_office">Not In</string>
     <string name="bulk_sick">Sick</string>
     <string name="bulk_holiday">Holiday</string>
+    <string name="bulk_bank_holiday">Bank Hol</string>
+    <string name="status_bank_holiday">Bank Holiday</string>
     <string name="bulk_apply">Apply</string>
     <string name="bulk_cancel">Cancel</string>
     <string name="bulk_clear">Clear</string>

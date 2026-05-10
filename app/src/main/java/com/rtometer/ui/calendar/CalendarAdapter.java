@@ -168,7 +168,9 @@ public class CalendarAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 bg = 0xFFFFDDB3;
             } else if (day.status == DayStatus.HOLIDAY) {
                 bg = 0xFFB3D9FF;
-            } else if (day.isWeekend || day.isBankHoliday) {
+            } else if (day.status == DayStatus.BANK_HOLIDAY || day.isBankHoliday) {
+                bg = 0xFFE1BEE7;
+            } else if (day.isWeekend) {
                 bg = 0xFFEEEEEE;
             }
             itemView.setBackgroundColor(bg);
@@ -179,7 +181,7 @@ public class CalendarAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 });
             } else {
                 itemView.setOnClickListener(v -> {
-                    if (listener != null && !day.isWeekend && !day.isBankHoliday) {
+                    if (listener != null && !day.isWeekend) {
                         listener.onDayClick(day);
                     }
                 });
