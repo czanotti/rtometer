@@ -5,8 +5,10 @@ import androidx.lifecycle.ViewModel;
 
 import com.rtometer.calculator.FiscalQuarterFactory;
 import com.rtometer.calculator.FiscalQuarterPreset;
+import com.rtometer.data.BankHolidayFetcher;
 import com.rtometer.data.db.AppConfig;
 import com.rtometer.data.db.AppConfigDao;
+import com.rtometer.data.db.BankHolidayDao;
 import com.rtometer.data.db.Quarter;
 import com.rtometer.data.db.QuarterDao;
 
@@ -25,15 +27,18 @@ public class SettingsViewModel extends ViewModel {
 
     private final AppConfigDao configDao;
     private final QuarterDao quarterDao;
+    final BankHolidayDao bankHolidayDao;
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     final MutableLiveData<AppConfig> config = new MutableLiveData<>();
     final MutableLiveData<Quarter> currentQuarter = new MutableLiveData<>();
 
     @Inject
-    public SettingsViewModel(AppConfigDao configDao, QuarterDao quarterDao) {
+    public SettingsViewModel(AppConfigDao configDao, QuarterDao quarterDao,
+                             BankHolidayDao bankHolidayDao) {
         this.configDao = configDao;
         this.quarterDao = quarterDao;
+        this.bankHolidayDao = bankHolidayDao;
         executor.submit(this::loadSync);
     }
 
@@ -49,7 +54,10 @@ public class SettingsViewModel extends ViewModel {
 
     public void saveConfig(LocalTime start, LocalTime end, int gps, String country,
                            FiscalQuarterPreset preset, int customMonth) {
-        executor.submit(() -> saveConfigSync(start, end, gps, country, preset, customMonth));
+        executor.submit(() -> {
+            saveConfigSync(start, end, gps, country, preset, customMonth);
+            refreshBankHolidays(country);
+        });
     }
 
     void saveConfigSync(LocalTime start, LocalTime end, int gps, String country,
@@ -67,6 +75,17 @@ public class SettingsViewModel extends ViewModel {
         cfg.customStartMonth = (preset == FiscalQuarterPreset.CUSTOM) ? customMonth : 1;
         configDao.upsert(cfg);
         config.postValue(cfg);
+    }
+
+    void refreshBankHolidays(String country) {
+        bankHolidayDao.deleteAllFetched();
+        if (country == null) return;
+        int year = LocalDate.now().getYear();
+        for (int y = year; y <= year + 1; y++) {
+            try {
+                bankHolidayDao.insertAll(BankHolidayFetcher.fetch(country, y));
+            } catch (Exception ignored) {}
+        }
     }
 
     public void saveQuarterTarget(long quarterId, float target) {
