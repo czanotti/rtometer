@@ -95,6 +95,8 @@
     <string name="settings_section_holidays">Bank Holidays</string>
     <string name="settings_country_none">None (no bank holidays)</string>
     <string name="settings_save">Save</string>
+    <string name="settings_saved">Settings saved</string>
+    <string name="settings_gps_error">Enter a number greater than 0</string>
     <string name="settings_reset_title">Reset Quarters?</string>
     <string name="settings_reset_message">This will delete all quarters and attendance history for the selected year and recreate them. This cannot be undone.</string>
     <string name="settings_reset_confirm">Reset</string>
@@ -105,7 +107,8 @@
 
     <!-- Dashboard -->
     <string name="dashboard_empty_title">No quarter configured</string>
-    <string name="dashboard_empty_subtitle">Complete setup to start tracking</string>
+    <string name="dashboard_empty_subtitle">Open Settings, confirm your quarter preset and year, then tap Save</string>
+    <string name="dashboard_empty_cta">Open Settings</string>
     <string name="dashboard_quarter_label">%1$s Q%2$d · %3$s – %4$s</string>
     <string name="dashboard_target_label">Target: %1$d%%</string>
     <string name="dashboard_pace_green">● On Track</string>
