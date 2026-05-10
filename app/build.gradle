@@ -31,6 +31,7 @@ android {
         unitTests {
             includeAndroidResources = true
             all {
+                outputs.upToDateWhen { false }
                 testLogging {
                     events "passed", "failed", "skipped"
                     exceptionFormat "full"
