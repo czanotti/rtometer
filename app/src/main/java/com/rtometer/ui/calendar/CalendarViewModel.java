@@ -89,6 +89,10 @@ public class CalendarViewModel extends ViewModel {
         bulkSelectedDaysLive.setValue(new HashSet<>());
     }
 
+    public void clearBulkSelection() {
+        bulkSelectedDaysLive.setValue(new HashSet<>());
+    }
+
     public void toggleBulkDay(LocalDate date) {
         Set<LocalDate> current = new HashSet<>(
                 bulkSelectedDaysLive.getValue() != null ? bulkSelectedDaysLive.getValue() : new HashSet<>());

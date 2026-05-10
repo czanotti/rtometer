@@ -175,9 +175,7 @@ public class CalendarAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
             if (inBulkMode) {
                 itemView.setOnClickListener(v -> {
-                    if (bulkListener != null && !day.isBankHoliday) {
-                        bulkListener.onBulkDayToggle(day);
-                    }
+                    if (bulkListener != null) bulkListener.onBulkDayToggle(day);
                 });
             } else {
                 itemView.setOnClickListener(v -> {
