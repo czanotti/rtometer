@@ -73,6 +73,16 @@
                     android:text="@string/bulk_apply" />
 
                 <Button
+                    android:id="@+id/btnBulkClear"
+                    style="@style/Widget.Material3.Button.TonalButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="4dp"
+                    android:layout_marginEnd="4dp"
+                    android:text="@string/bulk_clear" />
+
+                <Button
                     android:id="@+id/btnBulkCancel"
                     style="@style/Widget.Material3.Button.TonalButton"
                     android:layout_width="0dp"

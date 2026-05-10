@@ -61,10 +61,12 @@ public class CalendarFragment extends Fragment {
         FloatingActionButton fabBulk = view.findViewById(R.id.fabBulk);
         RadioGroup statusPicker = view.findViewById(R.id.statusPicker);
         Button btnApply = view.findViewById(R.id.btnBulkApply);
+        Button btnClear = view.findViewById(R.id.btnBulkClear);
         Button btnCancel = view.findViewById(R.id.btnBulkCancel);
 
         fabBulk.setOnClickListener(v -> viewModel.enterBulkMode());
         btnApply.setOnClickListener(v -> viewModel.applyBulkStatus());
+        btnClear.setOnClickListener(v -> viewModel.clearBulkSelection());
         btnCancel.setOnClickListener(v -> viewModel.exitBulkMode());
 
         statusPicker.setOnCheckedChangeListener((group, checkedId) -> {

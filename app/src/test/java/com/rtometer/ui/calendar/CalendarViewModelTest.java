@@ -314,6 +314,16 @@ public class CalendarViewModelTest {
         assertTrue(vm.bulkSelectedDays.getValue().isEmpty());
     }
 
+    @Test
+    public void clearBulkSelection_removesAllSelectedDaysWithoutExitingBulkMode() {
+        vm.enterBulkMode();
+        vm.toggleBulkDay(LocalDate.of(2025, 1, 6));
+        vm.toggleBulkDay(LocalDate.of(2025, 1, 7));
+        vm.clearBulkSelection();
+        assertTrue(vm.bulkSelectedDays.getValue().isEmpty());
+        assertTrue(vm.bulkMode.getValue());
+    }
+
     // ── helpers ───────────────────────────────────────────────────────────────
 
     private static Quarter quarter(LocalDate start, LocalDate end) {
