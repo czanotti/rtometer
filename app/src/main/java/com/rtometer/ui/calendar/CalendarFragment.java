@@ -61,19 +61,18 @@ public class CalendarFragment extends Fragment {
         FloatingActionButton fabBulk = view.findViewById(R.id.fabBulk);
         RadioGroup statusPicker = view.findViewById(R.id.statusPicker);
         Button btnApply = view.findViewById(R.id.btnBulkApply);
-        Button btnClear = view.findViewById(R.id.btnBulkClear);
         Button btnCancel = view.findViewById(R.id.btnBulkCancel);
 
         fabBulk.setOnClickListener(v -> viewModel.enterBulkMode());
         btnApply.setOnClickListener(v -> viewModel.applyBulkStatus());
-        btnClear.setOnClickListener(v -> viewModel.clearBulkSelection());
         btnCancel.setOnClickListener(v -> viewModel.exitBulkMode());
 
         statusPicker.setOnCheckedChangeListener((group, checkedId) -> {
-            if (checkedId == R.id.radioInOffice)     viewModel.setBulkStatus(DayStatus.IN_OFFICE);
+            if (checkedId == R.id.radioInOffice)         viewModel.setBulkStatus(DayStatus.IN_OFFICE);
             else if (checkedId == R.id.radioNotInOffice) viewModel.setBulkStatus(DayStatus.NOT_IN_OFFICE);
-            else if (checkedId == R.id.radioSick)    viewModel.setBulkStatus(DayStatus.SICK);
-            else if (checkedId == R.id.radioHoliday) viewModel.setBulkStatus(DayStatus.HOLIDAY);
+            else if (checkedId == R.id.radioSick)        viewModel.setBulkStatus(DayStatus.SICK);
+            else if (checkedId == R.id.radioHoliday)     viewModel.setBulkStatus(DayStatus.HOLIDAY);
+            else if (checkedId == R.id.radioClear)       viewModel.setBulkStatus(null);
         });
 
         viewModel.months.observe(getViewLifecycleOwner(), adapter::setData);
