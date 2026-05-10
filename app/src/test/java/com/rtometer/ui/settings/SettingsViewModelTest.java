@@ -52,6 +52,7 @@ public class SettingsViewModelTest {
 
     @After
     public void tearDown() {
+        vm.onCleared();
         db.close();
     }
 
