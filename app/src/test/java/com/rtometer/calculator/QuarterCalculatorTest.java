@@ -51,6 +51,17 @@ public class QuarterCalculatorTest {
     }
 
     @Test
+    public void totalWorkingDays_excludesBankHolidayStatus() {
+        Quarter q = twoWeekQuarter();
+        QuarterStats s = QuarterCalculator.calculate(
+                q,
+                List.of(day(q, LocalDate.of(2025, 1, 6), DayStatus.BANK_HOLIDAY)),
+                Collections.emptyList(),
+                LocalDate.of(2025, 1, 6));
+        assertEquals(9, s.totalWorkingDays);
+    }
+
+    @Test
     public void totalWorkingDays_excludesSickDays() {
         Quarter q = twoWeekQuarter();
         QuarterStats s = QuarterCalculator.calculate(
