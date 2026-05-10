@@ -12,6 +12,7 @@ import com.rtometer.data.db.AppDatabase;
 import com.rtometer.data.db.AttendanceDay;
 import com.rtometer.data.db.AttendanceDayDao;
 import com.rtometer.data.db.Quarter;
+import com.rtometer.data.db.BankHolidayDao;
 import com.rtometer.data.db.QuarterDao;
 import com.rtometer.data.model.DayStatus;
 
@@ -47,7 +48,7 @@ public class SettingsViewModelTest {
         configDao = db.appConfigDao();
         quarterDao = db.quarterDao();
         attendanceDayDao = db.attendanceDayDao();
-        vm = new SettingsViewModel(configDao, quarterDao);
+        vm = new SettingsViewModel(configDao, quarterDao, db.bankHolidayDao());
     }
 
     @After
