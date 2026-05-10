@@ -45,6 +45,7 @@ public class OfficeSetupViewModelTest {
 
     @After
     public void tearDown() {
+        vm.onCleared();
         db.close();
     }
 

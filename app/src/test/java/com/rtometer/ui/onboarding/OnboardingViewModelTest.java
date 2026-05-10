@@ -56,6 +56,7 @@ public class OnboardingViewModelTest {
 
     @After
     public void tearDown() {
+        vm.onCleared();
         db.close();
     }
 
