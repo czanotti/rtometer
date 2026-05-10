@@ -10,7 +10,7 @@ import androidx.room.TypeConverters;
 import androidx.room.migration.Migration;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 
-@Database(entities = {Quarter.class, Office.class, AttendanceDay.class, AppConfig.class, BankHoliday.class}, version = 2, exportSchema = false)
+@Database(entities = {Quarter.class, Office.class, AttendanceDay.class, AppConfig.class, BankHoliday.class}, version = 3, exportSchema = false)
 @TypeConverters(Converters.class)
 public abstract class AppDatabase extends RoomDatabase {
 
@@ -24,7 +24,9 @@ public abstract class AppDatabase extends RoomDatabase {
                             context.getApplicationContext(),
                             AppDatabase.class,
                             "rtometer.db"
-                    ).build();
+                    )
+                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
+                    .build();
                 }
             }
         }
@@ -53,6 +55,14 @@ public abstract class AppDatabase extends RoomDatabase {
                 "countryCode TEXT, " +
                 "year INTEGER NOT NULL)"
             );
+        }
+    };
+
+    public static final Migration MIGRATION_2_3 = new Migration(2, 3) {
+        @Override
+        public void migrate(SupportSQLiteDatabase database) {
+            database.execSQL("ALTER TABLE app_config ADD COLUMN fiscalQuarterPreset TEXT");
+            database.execSQL("ALTER TABLE app_config ADD COLUMN customStartMonth INTEGER NOT NULL DEFAULT 1");
         }
     };
 }

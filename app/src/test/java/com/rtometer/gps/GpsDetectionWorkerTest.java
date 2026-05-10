@@ -18,6 +18,7 @@ import com.rtometer.data.db.OfficeDao;
 import com.rtometer.data.db.Quarter;
 import com.rtometer.data.db.QuarterDao;
 import com.rtometer.data.model.DayStatus;
+import com.rtometer.gps.LocationPermissionChecker;
 
 import org.junit.After;
 import org.junit.Before;
@@ -31,6 +32,7 @@ import java.util.concurrent.Executors;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(RobolectricTestRunner.class)
 @Config(sdk = 34)
@@ -175,5 +177,24 @@ public class GpsDetectionWorkerTest {
         AttendanceDay result = dayDao.getByDate(LocalDate.now().toString());
         assertNotNull(result);
         assertEquals(DayStatus.IN_OFFICE, result.status);
+    }
+
+    @Test
+    public void permissionDenied_setsDeniedFlagAndLeavesDayUnchanged() {
+        insertOffice(HQ_LAT, HQ_LNG, 200);
+        long quarterId = insertQuarterContainingToday();
+        insertDayForToday(quarterId, DayStatus.NOT_IN_OFFICE);
+
+        // testLatLng = null → falls through to real permission check;
+        // Robolectric grants no permissions by default so hasBackgroundLocation() = false
+        GpsDetectionWorker.testLatLng = null;
+
+        ListenableWorker.Result result = buildWorker().doWork();
+
+        assertEquals(ListenableWorker.Result.success(), result);
+        assertTrue(LocationPermissionChecker.isDenied(context));
+        AttendanceDay day = dayDao.getByDate(LocalDate.now().toString());
+        assertNotNull(day);
+        assertEquals(DayStatus.NOT_IN_OFFICE, day.status);
     }
 }

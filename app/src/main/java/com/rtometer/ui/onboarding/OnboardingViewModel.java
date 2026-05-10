@@ -112,6 +112,8 @@ public class OnboardingViewModel extends ViewModel {
         config.gpsIntervalMinutes = gpsIntervalMinutes;
         config.bankHolidayCountry = bankHolidayCountry != null ? bankHolidayCountry.name() : null;
         config.fiscalYearOffset = 0;
+        config.fiscalQuarterPreset = preset.name();
+        config.customStartMonth = (preset == FiscalQuarterPreset.CUSTOM) ? customStartMonth : 1;
         configDao.upsert(config);
     }
 
