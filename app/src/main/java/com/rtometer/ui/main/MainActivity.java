@@ -22,7 +22,7 @@ import com.rtometer.ui.dashboard.DashboardFragment;
 import com.rtometer.ui.history.HistoryFragment;
 import com.rtometer.ui.office.OfficeSetupActivity;
 import com.rtometer.ui.onboarding.OnboardingActivity;
-import com.rtometer.ui.settings.SettingsActivity;
+import com.rtometer.ui.settings.SettingsFragment;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
@@ -66,6 +66,8 @@ public class MainActivity extends AppCompatActivity {
                 showFragment(new CalendarFragment());
             } else if (id == R.id.nav_history) {
                 showFragment(new HistoryFragment());
+            } else if (id == R.id.nav_settings) {
+                showFragment(new SettingsFragment());
             }
             return true;
         });
@@ -104,10 +106,6 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.action_manage_offices) {
             startActivity(new Intent(this, OfficeSetupActivity.class));
-            return true;
-        }
-        if (item.getItemId() == R.id.action_settings) {
-            startActivity(new Intent(this, SettingsActivity.class));
             return true;
         }
         return super.onOptionsItemSelected(item);

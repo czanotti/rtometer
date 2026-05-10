@@ -1,6 +1,5 @@
 package com.rtometer.ui.dashboard;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,11 +13,11 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.rtometer.R;
 import com.rtometer.calculator.PaceStatus;
 import com.rtometer.data.db.Quarter;
 import com.rtometer.ui.main.MainViewModel;
-import com.rtometer.ui.settings.SettingsActivity;
 
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
@@ -42,8 +41,10 @@ public class DashboardFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         View emptyState = view.findViewById(R.id.emptyState);
         Button btnGoToSettings = view.findViewById(R.id.btnGoToSettings);
-        btnGoToSettings.setOnClickListener(v ->
-                startActivity(new Intent(requireActivity(), SettingsActivity.class)));
+        btnGoToSettings.setOnClickListener(v -> {
+            BottomNavigationView nav = requireActivity().findViewById(R.id.bottomNav);
+            nav.setSelectedItemId(R.id.nav_settings);
+        });
         View dashboardContent = view.findViewById(R.id.dashboardContent);
         TextView quarterLabel = view.findViewById(R.id.quarterLabel);
         TextView percentageText = view.findViewById(R.id.percentageText);
