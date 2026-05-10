@@ -113,6 +113,8 @@ public class SettingsViewModel extends ViewModel {
 
     @Override
     protected void onCleared() {
-        executor.shutdownNow();
+        executor.shutdown();
+        try { executor.awaitTermination(5, java.util.concurrent.TimeUnit.SECONDS); }
+        catch (InterruptedException ignored) { Thread.currentThread().interrupt(); }
     }
 }
