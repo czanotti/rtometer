@@ -232,6 +232,144 @@ public class CalendarViewModelTest {
         assertTrue(inserted.isManualOverride);
     }
 
+    // ── bulk mode — state ─────────────────────────────────────────────────────
+
+    @Test
+    public void enterBulkMode_setsBulkModeTrue() {
+        vm.enterBulkMode();
+        assertTrue(vm.bulkMode.getValue());
+    }
+
+    @Test
+    public void exitBulkMode_setsBulkModeFalse() {
+        vm.enterBulkMode();
+        vm.exitBulkMode();
+        assertFalse(vm.bulkMode.getValue());
+    }
+
+    @Test
+    public void exitBulkMode_clearsSelectedDays() {
+        vm.enterBulkMode();
+        vm.toggleBulkDay(LocalDate.of(2025, 1, 6));
+        vm.exitBulkMode();
+        assertTrue(vm.bulkSelectedDays.getValue().isEmpty());
+    }
+
+    @Test
+    public void toggleBulkDay_addsDay() {
+        LocalDate day = LocalDate.of(2025, 1, 6);
+        vm.toggleBulkDay(day);
+        assertTrue(vm.bulkSelectedDays.getValue().contains(day));
+    }
+
+    @Test
+    public void toggleBulkDay_removesIfAlreadySelected() {
+        LocalDate day = LocalDate.of(2025, 1, 6);
+        vm.toggleBulkDay(day);
+        vm.toggleBulkDay(day);
+        assertFalse(vm.bulkSelectedDays.getValue().contains(day));
+    }
+
+    @Test
+    public void setBulkStatus_updatesLiveData() {
+        vm.setBulkStatus(DayStatus.SICK);
+        assertEquals(DayStatus.SICK, vm.bulkSelectedStatus.getValue());
+    }
+
+    // ── bulk mode — applyBulkStatusSync ──────────────────────────────────────
+
+    @Test
+    public void applyBulkStatusSync_writesStatusForEachSelectedDay() {
+        Quarter q = quarter(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 3, 31));
+        long qId = quarterDao.insert(q);
+        vm.loadedQuarterId = qId;
+
+        vm.setBulkStatus(DayStatus.SICK);
+        vm.toggleBulkDay(LocalDate.of(2025, 1, 6));
+        vm.toggleBulkDay(LocalDate.of(2025, 1, 7));
+        vm.applyBulkStatusSync();
+
+        AttendanceDay d1 = dayDao.getByDate("2025-01-06");
+        AttendanceDay d2 = dayDao.getByDate("2025-01-07");
+        assertNotNull(d1);
+        assertNotNull(d2);
+        assertEquals(DayStatus.SICK, d1.status);
+        assertEquals(DayStatus.SICK, d2.status);
+        assertTrue(d1.isManualOverride);
+        assertTrue(d2.isManualOverride);
+    }
+
+    @Test
+    public void applyBulkStatusSync_exitsBulkModeAndClearsSelection() {
+        Quarter q = quarter(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 3, 31));
+        long qId = quarterDao.insert(q);
+        vm.loadedQuarterId = qId;
+
+        vm.enterBulkMode();
+        vm.setBulkStatus(DayStatus.HOLIDAY);
+        vm.toggleBulkDay(LocalDate.of(2025, 1, 8));
+        vm.applyBulkStatusSync();
+
+        assertFalse(vm.bulkMode.getValue());
+        assertTrue(vm.bulkSelectedDays.getValue().isEmpty());
+    }
+
+    @Test
+    public void clearBulkSelection_removesAllSelectedDaysWithoutExitingBulkMode() {
+        vm.enterBulkMode();
+        vm.toggleBulkDay(LocalDate.of(2025, 1, 6));
+        vm.toggleBulkDay(LocalDate.of(2025, 1, 7));
+        vm.clearBulkSelection();
+        assertTrue(vm.bulkSelectedDays.getValue().isEmpty());
+        assertTrue(vm.bulkMode.getValue());
+    }
+
+    @Test
+    public void clearDayStatusSync_deletesExistingRecord() {
+        Quarter q = quarter(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 3, 31));
+        long qId = quarterDao.insert(q);
+        vm.loadedQuarterId = qId;
+
+        AttendanceDay ad = new AttendanceDay();
+        ad.date = LocalDate.of(2025, 1, 6);
+        ad.quarterId = qId;
+        ad.status = DayStatus.IN_OFFICE;
+        ad.isManualOverride = false;
+        dayDao.insert(ad);
+
+        vm.clearDayStatusSync(LocalDate.of(2025, 1, 6));
+
+        assertNull(dayDao.getByDate("2025-01-06"));
+    }
+
+    @Test
+    public void clearDayStatusSync_nonExistentDay_doesNotCrash() {
+        vm.loadedQuarterId = 1;
+        vm.clearDayStatusSync(LocalDate.of(2025, 1, 6)); // no record — must not throw
+    }
+
+    @Test
+    public void applyBulkStatusSync_withNullStatus_deletesSelectedDays() {
+        Quarter q = quarter(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 3, 31));
+        long qId = quarterDao.insert(q);
+        vm.loadedQuarterId = qId;
+
+        AttendanceDay ad = new AttendanceDay();
+        ad.date = LocalDate.of(2025, 1, 6);
+        ad.quarterId = qId;
+        ad.status = DayStatus.SICK;
+        ad.isManualOverride = true;
+        dayDao.insert(ad);
+
+        vm.setBulkStatus(null);
+        vm.toggleBulkDay(LocalDate.of(2025, 1, 6));
+        vm.applyBulkStatusSync();
+
+        assertNull(dayDao.getByDate("2025-01-06"));
+        assertFalse(vm.bulkMode.getValue());
+        assertTrue(vm.bulkSelectedDays.getValue().isEmpty());
+    }
+
     // ── helpers ───────────────────────────────────────────────────────────────
 
     private static Quarter quarter(LocalDate start, LocalDate end) {
