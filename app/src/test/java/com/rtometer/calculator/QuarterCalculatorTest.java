@@ -253,4 +253,37 @@ public class QuarterCalculatorTest {
         QuarterStats s = QuarterCalculator.calculate(twoWeekQuarter(), Collections.emptyList(), Collections.emptyList(), LocalDate.of(2025, 1, 16));
         assertEquals(PaceStatus.RED, s.paceStatus);
     }
+
+    // May–Jul 2026 quarter (Q2 FY2026, 66 working days)
+    private Quarter mayJulQuarter() {
+        Quarter q = new Quarter();
+        q.fiscalYear = 2026;
+        q.quarterNumber = 2;
+        q.startDate = LocalDate.of(2026, 5, 1);
+        q.endDate = LocalDate.of(2026, 7, 31);
+        q.targetPercentage = 0.5f;
+        q.preloadCount = 0;
+        return q;
+    }
+
+    @Test
+    public void daysRemaining_mayJulQuarter_66_whenTodayIsFirstDay() {
+        // May 1 (Fri) is first day of quarter → all 66 working days remain
+        QuarterStats s = QuarterCalculator.calculate(mayJulQuarter(), Collections.emptyList(), Collections.emptyList(), LocalDate.of(2026, 5, 1));
+        assertEquals(66, s.daysRemaining);
+    }
+
+    @Test
+    public void daysRemaining_mayJulQuarter_45_whenTodayIsJune1() {
+        // Jun 1 (Mon) → June + July = 22 + 23 = 45 working days remain
+        QuarterStats s = QuarterCalculator.calculate(mayJulQuarter(), Collections.emptyList(), Collections.emptyList(), LocalDate.of(2026, 6, 1));
+        assertEquals(45, s.daysRemaining);
+    }
+
+    @Test
+    public void daysRemaining_mayJulQuarter_23_whenTodayIsJuly1() {
+        // Jul 1 (Wed) → July only = 23 working days remain
+        QuarterStats s = QuarterCalculator.calculate(mayJulQuarter(), Collections.emptyList(), Collections.emptyList(), LocalDate.of(2026, 7, 1));
+        assertEquals(23, s.daysRemaining);
+    }
 }
