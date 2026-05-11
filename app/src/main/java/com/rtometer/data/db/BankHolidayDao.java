@@ -35,4 +35,7 @@ public interface BankHolidayDao {
 
     @Query("SELECT date FROM bank_holidays WHERE year = :year ORDER BY date ASC")
     LiveData<List<LocalDate>> observeDatesForYear(int year);
+
+    @Query("DELETE FROM bank_holidays WHERE countryCode IS NOT NULL")
+    void deleteAllFetched();
 }
