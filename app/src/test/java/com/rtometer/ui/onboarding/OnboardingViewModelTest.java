@@ -9,6 +9,7 @@ import com.rtometer.calculator.FiscalQuarterPreset;
 import com.rtometer.data.db.AppConfig;
 import com.rtometer.data.db.AppConfigDao;
 import com.rtometer.data.db.AppDatabase;
+import com.rtometer.data.db.BankHolidayDao;
 import com.rtometer.data.db.Office;
 import com.rtometer.data.db.OfficeDao;
 import com.rtometer.data.db.Quarter;
@@ -47,7 +48,7 @@ public class OnboardingViewModelTest {
         quarterDao = db.quarterDao();
         officeDao = db.officeDao();
         configDao = db.appConfigDao();
-        vm = new OnboardingViewModel(quarterDao, officeDao, configDao);
+        vm = new OnboardingViewModel(quarterDao, officeDao, configDao, db.bankHolidayDao());
         vm.setOfficeName("HQ");
         vm.setOfficeLat(51.5);
         vm.setOfficeLng(-0.1);

@@ -71,8 +71,9 @@ public class CalendarFragment extends Fragment {
             if (checkedId == R.id.radioInOffice)         viewModel.setBulkStatus(DayStatus.IN_OFFICE);
             else if (checkedId == R.id.radioNotInOffice) viewModel.setBulkStatus(DayStatus.NOT_IN_OFFICE);
             else if (checkedId == R.id.radioSick)        viewModel.setBulkStatus(DayStatus.SICK);
-            else if (checkedId == R.id.radioHoliday)     viewModel.setBulkStatus(DayStatus.HOLIDAY);
-            else if (checkedId == R.id.radioClear)       viewModel.setBulkStatus(null);
+            else if (checkedId == R.id.radioHoliday)      viewModel.setBulkStatus(DayStatus.HOLIDAY);
+            else if (checkedId == R.id.radioBankHoliday)  viewModel.setBulkStatus(DayStatus.BANK_HOLIDAY);
+            else if (checkedId == R.id.radioClear)        viewModel.setBulkStatus(null);
         });
 
         viewModel.months.observe(getViewLifecycleOwner(), adapter::setData);
