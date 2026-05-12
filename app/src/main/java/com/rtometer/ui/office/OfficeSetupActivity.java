@@ -4,8 +4,9 @@ import android.os.Bundle;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
+
+import com.rtometer.ui.SecureActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -16,7 +17,7 @@ import com.rtometer.data.db.Office;
 import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
-public class OfficeSetupActivity extends AppCompatActivity {
+public class OfficeSetupActivity extends SecureActivity {
 
     private OfficeSetupViewModel viewModel;
     private OfficeAdapter adapter;
