@@ -7,8 +7,9 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
+
+import com.rtometer.ui.SecureActivity;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.rtometer.R;
@@ -20,7 +21,7 @@ import java.util.List;
 import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
-public class OnboardingActivity extends AppCompatActivity {
+public class OnboardingActivity extends SecureActivity {
 
     interface FragmentStep {
         boolean isValid();
