@@ -5,5 +5,6 @@ public enum DayStatus {
     NOT_IN_OFFICE,
     SICK,
     HOLIDAY,
-    BANK_HOLIDAY
+    BANK_HOLIDAY,
+    CLEAR
 }

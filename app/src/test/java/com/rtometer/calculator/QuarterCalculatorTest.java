@@ -84,6 +84,28 @@ public class QuarterCalculatorTest {
     }
 
     @Test
+    public void totalWorkingDays_includesClearDay() {
+        Quarter q = twoWeekQuarter();
+        QuarterStats s = QuarterCalculator.calculate(
+                q,
+                List.of(day(q, LocalDate.of(2025, 1, 6), DayStatus.CLEAR)),
+                Collections.emptyList(),
+                LocalDate.of(2025, 1, 6));
+        assertEquals(10, s.totalWorkingDays);
+    }
+
+    @Test
+    public void daysAttended_doesNotCountClearDay() {
+        Quarter q = twoWeekQuarter();
+        QuarterStats s = QuarterCalculator.calculate(
+                q,
+                List.of(day(q, LocalDate.of(2025, 1, 6), DayStatus.CLEAR)),
+                Collections.emptyList(),
+                LocalDate.of(2025, 1, 6));
+        assertEquals(0, s.daysAttended);
+    }
+
+    @Test
     public void daysAttended_countsInOfficeDays() {
         Quarter q = twoWeekQuarter();
         List<AttendanceDay> days = List.of(
