@@ -14,8 +14,9 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+
+import com.rtometer.ui.SecureActivity;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.snackbar.Snackbar;
@@ -33,7 +34,7 @@ import java.util.Locale;
 import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
-public class SettingsActivity extends AppCompatActivity {
+public class SettingsActivity extends SecureActivity {
 
     private SettingsViewModel viewModel;
 
