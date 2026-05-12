@@ -70,7 +70,7 @@ public class QuarterCalculator {
         while (!d.isAfter(to)) {
             if (isWeekday(d) && !bankHolidays.contains(d)) {
                 DayStatus status = statusByDate.get(d);
-                if (status != DayStatus.SICK && status != DayStatus.HOLIDAY && status != DayStatus.BANK_HOLIDAY) {
+                if (status != DayStatus.BANK_HOLIDAY) {
                     count++;
                 }
             }
