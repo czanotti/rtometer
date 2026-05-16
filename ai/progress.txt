@@ -29,9 +29,11 @@
 - [x] RTO-28: Simplify onboarding — remove steps 5 & 6 (holidays, preload); fix default values
 - [x] RTO-29: Add app logo images
 - [x] RTO-30: Always show labels on bottom navigation bar
+- [x] RTO-22: Manual override on weekend days in calendar (single and bulk mode)
+- [x] RTO-24: Encrypt Room database with SQLCipher; Keystore-backed passphrase; drop-and-recreate on upgrade; fix onboarding NPE after activity recreation
 
 ### Open
 
-- [ ] RTO-22: Manual override on weekend days in calendar (single and bulk mode)
-- [ ] RTO-24: Encrypt Room database with SQLCipher (no migration needed — app not yet released; drop and recreate DB)
 - [ ] RTO-27: Add burndown chart to dashboard with month checkpoints
+- [ ] RTO-31: Fix office add/edit dialog (@AndroidEntryPoint missing); add lat/lng/radius labels in onboarding and settings
+- [ ] RTO-32: Rewrite README with logo, full feature docs, and sideload guide
