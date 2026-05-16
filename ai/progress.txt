@@ -1,0 +1,24 @@
+## RTOmeter — Ralph Progress Log
+
+### Completed
+
+- [x] RTO-1: PRD — RTOmeter (ai/prds/rtometer.md)
+- [x] RTO-2: Project scaffold — Hilt + Room + WorkManager + MVVM base + GitHub Actions CI (commit 565e6a7)
+
+### Remaining (in dependency order)
+
+- [x] RTO-3: Data model — Quarter, Office, AttendanceDay, AppConfig (Room entities + DAOs)
+- [x] RTO-4: QuarterCalculatorModule — working days, percentage, pace logic
+- [x] RTO-5: Fiscal quarter presets + custom config (FiscalQuarterPreset enum, FiscalQuarterFactory, tests)
+- [x] RTO-6: Bank holiday presets (IT, GB, US, DE, FR) + manual add/remove
+- [x] RTO-7: Onboarding wizard (6 screens: quarter → target → hours → office → holidays → pre-load)
+- [x] RTO-28: Simplify onboarding — remove Step 5 (holidays) and Step 6 (preload days); reset DB to version 1; fix default values (PR #52)
+- [x] RTO-8: GpsDetectionModule — WorkManager periodic task + geofence check (GeofenceChecker, GpsDetectionWorker, GpsScheduler, tests)
+- [x] RTO-9: DashboardModule — percentage, pace indicator, summary stats
+- [x] RTO-10: CalendarModule — quarter calendar view + day status tap/edit (CalendarViewModel, CalendarFragment, CalendarAdapter, DayStatusBottomSheetFragment, 13 tests)
+- [x] RTO-11: OfficeSetupModule — map pin + current location + radius config (OfficeSetupViewModel, OfficeSetupActivity, OfficeAdapter, OfficeEditFragment, OSMDroid map, 9 tests)
+- [x] RTO-12: HistoryModule — past quarters archive + summary stats (HistoryRepository, HistoryViewModel, HistoryFragment, BottomNavigationView, DashboardFragment, 6 tests)
+- [ ] RTO-13: SettingsModule — edit all app config
+- [ ] RTO-14: Location permission handling + degraded-mode banner
+- [ ] RTO-15: Unit tests — Calculator, Presets, GPS detection, Repository
+- [ ] RTO-16: README + CONTRIBUTING.md
