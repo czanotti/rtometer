@@ -34,6 +34,5 @@
 
 ### Open
 
-- [ ] RTO-27: Add burndown chart to dashboard with month checkpoints
 - [ ] RTO-31: Fix office add/edit dialog (@AndroidEntryPoint missing); add lat/lng/radius labels in onboarding and settings
 - [ ] RTO-32: Rewrite README with logo, full feature docs, and sideload guide
