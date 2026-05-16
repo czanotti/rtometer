@@ -54,6 +54,11 @@ dependencies {
     implementation libs.osmdroid
     implementation libs.hilt.android
     annotationProcessor libs.hilt.compiler
+    implementation libs.sqlcipher
+    implementation libs.sqlite.ktx
+
+    androidTestImplementation libs.androidx.test.ext.junit
+    androidTestImplementation libs.androidx.test.runner
 
     testImplementation libs.junit
     testImplementation libs.robolectric
