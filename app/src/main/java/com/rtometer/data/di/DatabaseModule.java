@@ -10,8 +10,11 @@ import com.rtometer.data.db.AppConfigDao;
 import com.rtometer.data.db.AppDatabase;
 import com.rtometer.data.db.AttendanceDayDao;
 import com.rtometer.data.db.BankHolidayDao;
+import com.rtometer.data.db.KeystoreKeyProvider;
 import com.rtometer.data.db.OfficeDao;
 import com.rtometer.data.db.QuarterDao;
+
+import net.sqlcipher.database.SupportFactory;
 
 import javax.inject.Singleton;
 
@@ -28,7 +31,11 @@ public class DatabaseModule {
     @Provides
     @Singleton
     public AppDatabase provideDatabase(@ApplicationContext Context context) {
+        AppDatabase.dropIfUnencrypted(context, "rtometer.db");
+        byte[] passphrase = new KeystoreKeyProvider(context).getOrCreatePassphrase();
+        SupportFactory factory = new SupportFactory(passphrase);
         return Room.databaseBuilder(context, AppDatabase.class, "rtometer.db")
+                .openHelperFactory(factory)
                 .build();
     }
 
