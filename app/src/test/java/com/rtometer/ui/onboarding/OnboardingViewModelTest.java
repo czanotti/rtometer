@@ -14,7 +14,6 @@ import com.rtometer.data.db.Office;
 import com.rtometer.data.db.OfficeDao;
 import com.rtometer.data.db.Quarter;
 import com.rtometer.data.db.QuarterDao;
-import com.rtometer.data.model.BankHolidayCountry;
 
 import org.junit.After;
 import org.junit.Before;
@@ -49,9 +48,9 @@ public class OnboardingViewModelTest {
         officeDao = db.officeDao();
         configDao = db.appConfigDao();
         vm = new OnboardingViewModel(quarterDao, officeDao, configDao, db.bankHolidayDao());
-        vm.setOfficeName("HQ");
-        vm.setOfficeLat(51.5);
-        vm.setOfficeLng(-0.1);
+        vm.setOfficeName("Kings Building");
+        vm.setOfficeLat(53.3478);
+        vm.setOfficeLng(-6.27591);
         vm.setOfficeRadiusMeters(200);
     }
 
@@ -62,62 +61,46 @@ public class OnboardingViewModelTest {
     }
 
     @Test
-    public void persist_calendarPreset2026_createsFourQuarters() {
-        vm.setPreset(FiscalQuarterPreset.CALENDAR);
-        vm.setSelectedYear(2026);
-        vm.setTargetPercentage(60);
+    public void persist_febStartPreset_createsFourQuarters() {
+        vm.setPreset(FiscalQuarterPreset.FEB_START);
+        vm.setTargetPercentage(50);
         vm.persistSync();
 
         List<Quarter> quarters = quarterDao.getAll();
         assertEquals(4, quarters.size());
         Quarter q1 = findByNumber(quarters, 1);
         assertNotNull(q1);
-        assertEquals(LocalDate.of(2026, 1, 1), q1.startDate);
-        assertEquals(LocalDate.of(2026, 3, 31), q1.endDate);
-        assertEquals(0.6f, q1.targetPercentage, 0.001f);
+        assertEquals(2, q1.startDate.getMonthValue());
+        assertEquals(0.5f, q1.targetPercentage, 0.001f);
+    }
+
+    @Test
+    public void persist_calendarPreset_q1StartsInJanuary() {
+        vm.setPreset(FiscalQuarterPreset.CALENDAR);
+        vm.persistSync();
+
+        List<Quarter> quarters = quarterDao.getAll();
+        Quarter q1 = findByNumber(quarters, 1);
+        assertNotNull(q1);
+        assertEquals(1, q1.startDate.getMonthValue());
     }
 
     @Test
     public void persist_customPresetMonth3_q1StartsInMarch() {
         vm.setPreset(FiscalQuarterPreset.CUSTOM);
         vm.setCustomStartMonth(3);
-        vm.setSelectedYear(2026);
         vm.persistSync();
 
         List<Quarter> quarters = quarterDao.getAll();
         assertEquals(4, quarters.size());
         Quarter q1 = findByNumber(quarters, 1);
         assertNotNull(q1);
-        assertEquals(LocalDate.of(2026, 3, 1), q1.startDate);
-    }
-
-    @Test
-    public void persist_withPreloadCount_exactlyOneQuarterHasIt() {
-        vm.setPreset(FiscalQuarterPreset.CALENDAR);
-        vm.setSelectedYear(LocalDate.now().getYear());
-        vm.setPreloadCount(5);
-        vm.persistSync();
-
-        List<Quarter> quarters = quarterDao.getAll();
-        long preloaded = quarters.stream().filter(q -> q.preloadCount == 5).count();
-        assertEquals(1, preloaded);
-    }
-
-    @Test
-    public void persist_zeroPreloadCount_noQuarterHasPreload() {
-        vm.setPreset(FiscalQuarterPreset.CALENDAR);
-        vm.setSelectedYear(2026);
-        vm.setPreloadCount(0);
-        vm.persistSync();
-
-        List<Quarter> quarters = quarterDao.getAll();
-        assertTrue(quarters.stream().allMatch(q -> q.preloadCount == 0));
+        assertEquals(3, q1.startDate.getMonthValue());
     }
 
     @Test
     public void persist_insertsOfficePrimary() {
-        vm.setPreset(FiscalQuarterPreset.CALENDAR);
-        vm.setSelectedYear(2026);
+        vm.setPreset(FiscalQuarterPreset.FEB_START);
         vm.setOfficeName("Paris HQ");
         vm.setOfficeLat(48.8566);
         vm.setOfficeLng(2.3522);
@@ -134,43 +117,29 @@ public class OnboardingViewModelTest {
     }
 
     @Test
-    public void persist_withBankHolidayIT_storesInConfig() {
-        vm.setPreset(FiscalQuarterPreset.CALENDAR);
-        vm.setSelectedYear(2026);
-        vm.setBankHolidayCountry(BankHolidayCountry.IT);
-        vm.persistSync();
-
-        AppConfig cfg = configDao.get();
-        assertNotNull(cfg);
-        assertEquals("IT", cfg.bankHolidayCountry);
-    }
-
-    @Test
-    public void persist_noBankHolidayCountry_storesNull() {
-        vm.setPreset(FiscalQuarterPreset.CALENDAR);
-        vm.setSelectedYear(2026);
-        vm.setBankHolidayCountry(null);
-        vm.persistSync();
-
-        AppConfig cfg = configDao.get();
-        assertNotNull(cfg);
-        assertNull(cfg.bankHolidayCountry);
-    }
-
-    @Test
     public void persist_storesWorkHoursAndGpsInterval() {
-        vm.setPreset(FiscalQuarterPreset.CALENDAR);
-        vm.setSelectedYear(2026);
-        vm.setWorkDayStart(LocalTime.of(9, 0));
-        vm.setWorkDayEnd(LocalTime.of(17, 30));
-        vm.setGpsIntervalMinutes(30);
+        vm.setPreset(FiscalQuarterPreset.FEB_START);
+        vm.setWorkDayStart(LocalTime.of(9, 30));
+        vm.setWorkDayEnd(LocalTime.of(18, 0));
+        vm.setGpsIntervalMinutes(120);
         vm.persistSync();
 
         AppConfig cfg = configDao.get();
         assertNotNull(cfg);
-        assertEquals(LocalTime.of(9, 0), cfg.workDayStart);
-        assertEquals(LocalTime.of(17, 30), cfg.workDayEnd);
-        assertEquals(30, cfg.gpsIntervalMinutes);
+        assertEquals(LocalTime.of(9, 30), cfg.workDayStart);
+        assertEquals(LocalTime.of(18, 0), cfg.workDayEnd);
+        assertEquals(120, cfg.gpsIntervalMinutes);
+    }
+
+    @Test
+    public void persist_defaultsFebStartAndCorrectWorkTimes() {
+        vm.persistSync();
+
+        AppConfig cfg = configDao.get();
+        assertNotNull(cfg);
+        assertEquals("FEB_START", cfg.fiscalQuarterPreset);
+        assertEquals(LocalTime.of(9, 30), cfg.workDayStart);
+        assertEquals(120, cfg.gpsIntervalMinutes);
     }
 
     private Quarter findByNumber(List<Quarter> list, int n) {

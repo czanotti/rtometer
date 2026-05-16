@@ -68,7 +68,6 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
 
             quarterLabel.setText(itemView.getContext().getString(
                     R.string.dashboard_quarter_label,
-                    q.fiscalYear,
                     q.quarterNumber,
                     q.startDate.format(MONTH_DAY),
                     q.endDate.format(MONTH_DAY)));

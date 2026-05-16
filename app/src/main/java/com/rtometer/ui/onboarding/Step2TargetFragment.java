@@ -30,8 +30,8 @@ public class Step2TargetFragment extends Fragment implements OnboardingActivity.
         seekBar = view.findViewById(R.id.seekBarTarget);
         tvValue = view.findViewById(R.id.tvTargetValue);
         seekBar.setMax(100);
-        seekBar.setProgress(60);
-        tvValue.setText("60%");
+        seekBar.setProgress(50);
+        tvValue.setText("50%");
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar s, int p, boolean fromUser) {

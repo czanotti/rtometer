@@ -43,7 +43,6 @@ public class AttendanceDayDaoTest {
 
     private long insertQuarter(int fy, int qn) {
         Quarter q = new Quarter();
-        q.fiscalYear = fy;
         q.quarterNumber = qn;
         q.startDate = LocalDate.of(fy, 1, 1);
         q.endDate = LocalDate.of(fy, 3, 31);

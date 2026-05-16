@@ -9,10 +9,8 @@ import java.time.LocalDate;
 public class Quarter {
     @PrimaryKey(autoGenerate = true)
     public long id;
-    public int fiscalYear;
     public int quarterNumber;
     public LocalDate startDate;
     public LocalDate endDate;
     public float targetPercentage = 0.5f;
-    public int preloadCount = 0;
 }

@@ -61,17 +61,17 @@ public class AppConfigDaoTest {
         config1.id = 1;
         config1.workDayStart = LocalTime.of(8, 0);
         config1.workDayEnd = LocalTime.of(18, 0);
-        config1.bankHolidayCountry = "IT";
+        config1.gpsIntervalMinutes = 60;
         dao.upsert(config1);
 
         AppConfig config2 = new AppConfig();
         config2.id = 1;
         config2.workDayStart = LocalTime.of(9, 0);
         config2.workDayEnd = LocalTime.of(17, 0);
-        config2.bankHolidayCountry = "US";
+        config2.gpsIntervalMinutes = 120;
         dao.upsert(config2);
 
         AppConfig result = dao.get();
-        assertEquals("US", result.bankHolidayCountry);
+        assertEquals(120, result.gpsIntervalMinutes);
     }
 }

@@ -17,12 +17,10 @@ public class QuarterCalculatorTest {
     // Jan 6–17 2025: 2 full Mon–Fri weeks = 10 working days, target 50%
     private Quarter twoWeekQuarter() {
         Quarter q = new Quarter();
-        q.fiscalYear = 2025;
         q.quarterNumber = 1;
         q.startDate = LocalDate.of(2025, 1, 6);
         q.endDate = LocalDate.of(2025, 1, 17);
         q.targetPercentage = 0.5f;
-        q.preloadCount = 0;
         return q;
     }
 
@@ -87,12 +85,10 @@ public class QuarterCalculatorTest {
     public void fy27q1_has66WorkingDays() {
         // May 1 – Jul 31 2026: 21 + 22 + 23 = 66 weekdays, no bank holidays
         Quarter q = new Quarter();
-        q.fiscalYear = 2027;
         q.quarterNumber = 1;
         q.startDate = LocalDate.of(2026, 5, 1);
         q.endDate = LocalDate.of(2026, 7, 31);
         q.targetPercentage = 0.5f;
-        q.preloadCount = 0;
         QuarterStats s = QuarterCalculator.calculate(q, Collections.emptyList(), Collections.emptyList(), LocalDate.of(2026, 5, 1));
         assertEquals(66, s.totalWorkingDays);
     }
@@ -153,18 +149,6 @@ public class QuarterCalculatorTest {
         );
         QuarterStats s = QuarterCalculator.calculate(q, days, Collections.emptyList(), LocalDate.of(2025, 1, 6));
         assertEquals(2, s.daysAttended);
-    }
-
-    @Test
-    public void daysAttended_includesPreloadCount() {
-        Quarter q = twoWeekQuarter();
-        q.preloadCount = 3;
-        QuarterStats s = QuarterCalculator.calculate(
-                q,
-                List.of(day(q, LocalDate.of(2025, 1, 6), DayStatus.IN_OFFICE)),
-                Collections.emptyList(),
-                LocalDate.of(2025, 1, 6));
-        assertEquals(4, s.daysAttended);
     }
 
     @Test
@@ -279,12 +263,10 @@ public class QuarterCalculatorTest {
     // May–Jul 2026 quarter (Q2 FY2026, 66 working days)
     private Quarter mayJulQuarter() {
         Quarter q = new Quarter();
-        q.fiscalYear = 2026;
         q.quarterNumber = 2;
         q.startDate = LocalDate.of(2026, 5, 1);
         q.endDate = LocalDate.of(2026, 7, 31);
         q.targetPercentage = 0.5f;
-        q.preloadCount = 0;
         return q;
     }
 

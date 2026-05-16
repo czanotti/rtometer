@@ -10,13 +10,10 @@ import java.time.LocalTime;
 public class AppConfig {
     @PrimaryKey
     public int id;
-    public LocalTime workDayStart = LocalTime.of(8, 0);
+    public LocalTime workDayStart = LocalTime.of(9, 30);
     public LocalTime workDayEnd = LocalTime.of(18, 0);
-    public int gpsIntervalMinutes = 15;
-    @Nullable
-    public String bankHolidayCountry;
-    public int fiscalYearOffset = 1;
+    public int gpsIntervalMinutes = 120;
     @Nullable
     public String fiscalQuarterPreset;
-    public int customStartMonth = 1;
+    public int customStartMonth = 2;
 }

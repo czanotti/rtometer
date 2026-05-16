@@ -35,7 +35,6 @@ public class OnboardingActivity extends SecureActivity {
     private ProgressBar progressBar;
     private TextView stepLabel;
     private Button btnBack;
-    private Button btnSkip;
     private Button btnNext;
 
     @Override
@@ -48,16 +47,13 @@ public class OnboardingActivity extends SecureActivity {
         progressBar = findViewById(R.id.progressBar);
         stepLabel = findViewById(R.id.stepLabel);
         btnBack = findViewById(R.id.btnBack);
-        btnSkip = findViewById(R.id.btnSkip);
         btnNext = findViewById(R.id.btnNext);
 
         steps = Arrays.asList(
                 new Step1QuarterFragment(),
                 new Step2TargetFragment(),
                 new Step3HoursFragment(),
-                new Step4OfficeFragment(),
-                new Step5HolidaysFragment(),
-                new Step6PreloadFragment()
+                new Step4OfficeFragment()
         );
 
         if (savedInstanceState == null) {
@@ -69,11 +65,6 @@ public class OnboardingActivity extends SecureActivity {
 
         btnBack.setOnClickListener(v -> {
             if (currentStep > 0) showStep(currentStep - 1);
-        });
-
-        btnSkip.setOnClickListener(v -> {
-            steps.get(currentStep).saveToViewModel(vm);
-            showStep(currentStep + 1);
         });
 
         btnNext.setOnClickListener(v -> {
@@ -120,8 +111,6 @@ public class OnboardingActivity extends SecureActivity {
         progressBar.setProgress(currentStep + 1);
         stepLabel.setText(getString(R.string.step_of, currentStep + 1, steps.size()));
         btnBack.setVisibility(currentStep > 0 ? View.VISIBLE : View.INVISIBLE);
-        boolean isHolidayStep = currentStep == 4;
-        btnSkip.setVisibility(isHolidayStep ? View.VISIBLE : View.GONE);
         boolean isLastStep = currentStep == steps.size() - 1;
         btnNext.setText(isLastStep ? R.string.btn_finish : R.string.btn_next);
         btnNext.setEnabled(true);

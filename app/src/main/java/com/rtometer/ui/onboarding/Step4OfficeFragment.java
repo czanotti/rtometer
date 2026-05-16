@@ -32,6 +32,10 @@ public class Step4OfficeFragment extends Fragment implements OnboardingActivity.
         etLat = view.findViewById(R.id.etLat);
         etLng = view.findViewById(R.id.etLng);
         etRadius = view.findViewById(R.id.etRadius);
+
+        etName.setText("Kings Building");
+        etLat.setText("53.3478");
+        etLng.setText("-6.27591");
         etRadius.setText("200");
     }
 
