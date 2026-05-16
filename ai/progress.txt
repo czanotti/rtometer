@@ -3,24 +3,35 @@
 ### Completed
 
 - [x] RTO-1: PRD — RTOmeter (ai/prds/rtometer.md)
-- [x] RTO-2: Project scaffold — Hilt + Room + WorkManager + MVVM base + GitHub Actions CI (commit 565e6a7)
-
-### Remaining (in dependency order)
-
+- [x] RTO-2: Project scaffold — Hilt + Room + WorkManager + MVVM base + GitHub Actions CI
 - [x] RTO-3: Data model — Quarter, Office, AttendanceDay, AppConfig (Room entities + DAOs)
 - [x] RTO-4: QuarterCalculatorModule — working days, percentage, pace logic
 - [x] RTO-5: Fiscal quarter presets + custom config (FiscalQuarterPreset enum, FiscalQuarterFactory, tests)
 - [x] RTO-6: Bank holiday presets (IT, GB, US, DE, FR) + manual add/remove
-- [x] RTO-7: Onboarding wizard (6 screens: quarter → target → hours → office → holidays → pre-load)
-- [x] RTO-28: Simplify onboarding — remove Step 5 (holidays) and Step 6 (preload days); reset DB to version 1; fix default values (PR #52)
-- [x] RTO-8: GpsDetectionModule — WorkManager periodic task + geofence check (GeofenceChecker, GpsDetectionWorker, GpsScheduler, tests)
+- [x] RTO-7: Onboarding wizard (4 screens: quarter → target → hours → office)
+- [x] RTO-8: GpsDetectionModule — WorkManager periodic task + geofence check
 - [x] RTO-9: DashboardModule — percentage, pace indicator, summary stats
-- [x] RTO-10: CalendarModule — quarter calendar view + day status tap/edit (CalendarViewModel, CalendarFragment, CalendarAdapter, DayStatusBottomSheetFragment, 13 tests)
-- [x] RTO-11: OfficeSetupModule — map pin + current location + radius config (OfficeSetupViewModel, OfficeSetupActivity, OfficeAdapter, OfficeEditFragment, OSMDroid map, 9 tests)
-- [x] RTO-12: HistoryModule — past quarters archive + summary stats (HistoryRepository, HistoryViewModel, HistoryFragment, BottomNavigationView, DashboardFragment, 6 tests)
-- [ ] RTO-13: SettingsModule — edit all app config
-- [ ] RTO-14: Location permission handling + degraded-mode banner
-- [ ] RTO-15: Unit tests — Calculator, Presets, GPS detection, Repository
-- [ ] RTO-16: README + CONTRIBUTING.md
-- [ ] RTO-29: Add app logo images (issue #53)
-- [x] RTO-30: Always show labels on bottom navigation bar (issue #54)
+- [x] RTO-10: CalendarModule — quarter calendar view + day status tap/edit
+- [x] RTO-11: OfficeSetupModule — map pin + current location + radius config
+- [x] RTO-12: HistoryModule — past quarters archive + summary stats
+- [x] RTO-13: SettingsModule — edit all app config
+- [x] RTO-14: Location permission handling + degraded-mode banner
+- [x] RTO-15: (skipped — absorbed into earlier tickets)
+- [x] RTO-16: README + CONTRIBUTING.md
+- [x] RTO-17: Fix SQLite resource leaks, CloseGuard warnings, DB migration 3→4
+- [x] RTO-18: Fix launch crash, navigation & settings save bugs
+- [x] RTO-19: Add Settings tab to bottom navigation bar
+- [x] RTO-20: Calendar bulk status assignment + Clear classification + future date selection
+- [x] RTO-21: Fix working-days denominator — exclude only bank holidays; add unit tests
+- [x] RTO-23: Exclude database from Android cloud backup
+- [x] RTO-25: Apply FLAG_SECURE to all activities via SecureActivity base class
+- [x] RTO-26: Treat CLEAR days as out-of-office — exclude from daysAttended
+- [x] RTO-28: Simplify onboarding — remove steps 5 & 6 (holidays, preload); fix default values
+- [x] RTO-29: Add app logo images
+- [x] RTO-30: Always show labels on bottom navigation bar
+
+### Open
+
+- [ ] RTO-22: Manual override on weekend days in calendar (single and bulk mode)
+- [ ] RTO-24: Encrypt Room database with SQLCipher
+- [ ] RTO-27: Add burndown chart to dashboard with month checkpoints
