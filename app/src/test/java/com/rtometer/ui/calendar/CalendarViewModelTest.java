@@ -370,6 +370,55 @@ public class CalendarViewModelTest {
         assertTrue(vm.bulkSelectedDays.getValue().isEmpty());
     }
 
+    // ── weekend override ─────────────────────────────────────────────────────
+
+    @Test
+    public void updateDayStatusSync_saturday_persistsStatusAsManualOverride() {
+        Quarter q = quarter(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 3, 31));
+        long qId = quarterDao.insert(q);
+        vm.loadedQuarterId = qId;
+
+        // 2025-01-04 is a Saturday
+        assertEquals(DayOfWeek.SATURDAY, LocalDate.of(2025, 1, 4).getDayOfWeek());
+        vm.updateDayStatusSync(LocalDate.of(2025, 1, 4), DayStatus.IN_OFFICE);
+
+        AttendanceDay saved = dayDao.getByDate("2025-01-04");
+        assertNotNull(saved);
+        assertEquals(DayStatus.IN_OFFICE, saved.status);
+        assertTrue(saved.isManualOverride);
+    }
+
+    @Test
+    public void updateDayStatusSync_sunday_persistsStatusAsManualOverride() {
+        Quarter q = quarter(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 3, 31));
+        long qId = quarterDao.insert(q);
+        vm.loadedQuarterId = qId;
+
+        // 2025-01-05 is a Sunday
+        assertEquals(DayOfWeek.SUNDAY, LocalDate.of(2025, 1, 5).getDayOfWeek());
+        vm.updateDayStatusSync(LocalDate.of(2025, 1, 5), DayStatus.SICK);
+
+        AttendanceDay saved = dayDao.getByDate("2025-01-05");
+        assertNotNull(saved);
+        assertEquals(DayStatus.SICK, saved.status);
+        assertTrue(saved.isManualOverride);
+    }
+
+    @Test
+    public void buildMonths_weekendWithOverride_hasStatusAndIsManualOverride() {
+        Quarter q = quarter(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 1, 31));
+        // 2025-01-04 is Saturday
+        AttendanceDay ad = attendanceDay(LocalDate.of(2025, 1, 4), DayStatus.IN_OFFICE, true);
+
+        List<CalendarMonth> months = CalendarViewModel.buildMonths(q, List.of(ad), Collections.emptySet());
+        CalendarDay day = findDay(months, LocalDate.of(2025, 1, 4));
+
+        assertNotNull(day);
+        assertTrue(day.isWeekend);
+        assertEquals(DayStatus.IN_OFFICE, day.status);
+        assertTrue(day.isManualOverride);
+    }
+
     // ── helpers ───────────────────────────────────────────────────────────────
 
     private static Quarter quarter(LocalDate start, LocalDate end) {
