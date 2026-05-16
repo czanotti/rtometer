@@ -31,6 +31,7 @@ public class DatabaseModule {
     @Provides
     @Singleton
     public AppDatabase provideDatabase(@ApplicationContext Context context) {
+        AppDatabase.dropIfUnencrypted(context, "rtometer.db");
         byte[] passphrase = new KeystoreKeyProvider(context).getOrCreatePassphrase();
         SupportFactory factory = new SupportFactory(passphrase);
         return Room.databaseBuilder(context, AppDatabase.class, "rtometer.db")
