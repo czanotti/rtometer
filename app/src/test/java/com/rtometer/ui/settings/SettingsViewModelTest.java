@@ -59,30 +59,20 @@ public class SettingsViewModelTest {
 
     @Test
     public void saveConfigSync_persistsWorkHoursAndGpsInterval() {
-        vm.saveConfigSync(LocalTime.of(9, 0), LocalTime.of(17, 30), 30,
-                null, FiscalQuarterPreset.CALENDAR, 1);
+        vm.saveConfigSync(LocalTime.of(9, 0), LocalTime.of(17, 30), 120,
+                FiscalQuarterPreset.FEB_START, 2);
 
         AppConfig cfg = configDao.get();
         assertNotNull(cfg);
         assertEquals(LocalTime.of(9, 0), cfg.workDayStart);
         assertEquals(LocalTime.of(17, 30), cfg.workDayEnd);
-        assertEquals(30, cfg.gpsIntervalMinutes);
-    }
-
-    @Test
-    public void saveConfigSync_persistsBankHolidayCountry() {
-        vm.saveConfigSync(LocalTime.of(8, 0), LocalTime.of(18, 0), 15,
-                "IT", FiscalQuarterPreset.CALENDAR, 1);
-
-        AppConfig cfg = configDao.get();
-        assertNotNull(cfg);
-        assertEquals("IT", cfg.bankHolidayCountry);
+        assertEquals(120, cfg.gpsIntervalMinutes);
     }
 
     @Test
     public void saveConfigSync_persistsPreset() {
-        vm.saveConfigSync(LocalTime.of(8, 0), LocalTime.of(18, 0), 15,
-                null, FiscalQuarterPreset.APR_START, 1);
+        vm.saveConfigSync(LocalTime.of(9, 30), LocalTime.of(18, 0), 120,
+                FiscalQuarterPreset.APR_START, 2);
 
         AppConfig cfg = configDao.get();
         assertNotNull(cfg);
@@ -91,8 +81,8 @@ public class SettingsViewModelTest {
 
     @Test
     public void saveConfigSync_customPreset_persistsCustomStartMonth() {
-        vm.saveConfigSync(LocalTime.of(8, 0), LocalTime.of(18, 0), 15,
-                null, FiscalQuarterPreset.CUSTOM, 3);
+        vm.saveConfigSync(LocalTime.of(9, 30), LocalTime.of(18, 0), 120,
+                FiscalQuarterPreset.CUSTOM, 3);
 
         AppConfig cfg = configDao.get();
         assertNotNull(cfg);
@@ -102,7 +92,7 @@ public class SettingsViewModelTest {
 
     @Test
     public void saveQuarterTargetSync_updatesTarget() {
-        Quarter q = quarter(2026, 1, LocalDate.of(2026, 1, 1), LocalDate.of(2026, 3, 31), 0.5f);
+        Quarter q = quarter(1, LocalDate.of(2026, 1, 1), LocalDate.of(2026, 3, 31), 0.5f);
         long id = quarterDao.insert(q);
 
         vm.saveQuarterTargetSync(id, 0.8f);
@@ -118,18 +108,17 @@ public class SettingsViewModelTest {
 
     @Test
     public void resetQuartersSync_deletesPreviousAndCreatesFour() {
-        quarterDao.insert(quarter(2025, 1, LocalDate.of(2025, 1, 1), LocalDate.of(2025, 3, 31), 0.6f));
+        quarterDao.insert(quarter(1, LocalDate.of(2025, 1, 1), LocalDate.of(2025, 3, 31), 0.6f));
 
-        vm.resetQuartersSync(FiscalQuarterPreset.CALENDAR, 1, 2026, 0.6f);
+        vm.resetQuartersSync(FiscalQuarterPreset.FEB_START, 2, 0.6f);
 
         List<Quarter> quarters = quarterDao.getAll();
         assertEquals(4, quarters.size());
-        assertTrue(quarters.stream().allMatch(qx -> qx.fiscalYear == 2026));
     }
 
     @Test
     public void resetQuartersSync_cascadeDeletesAttendanceDays() {
-        Quarter q = quarter(2025, 1, LocalDate.of(2025, 1, 1), LocalDate.of(2025, 3, 31), 0.6f);
+        Quarter q = quarter(1, LocalDate.of(2025, 1, 1), LocalDate.of(2025, 3, 31), 0.6f);
         long qId = quarterDao.insert(q);
 
         AttendanceDay day = new AttendanceDay();
@@ -138,14 +127,14 @@ public class SettingsViewModelTest {
         day.status = DayStatus.IN_OFFICE;
         attendanceDayDao.insert(day);
 
-        vm.resetQuartersSync(FiscalQuarterPreset.CALENDAR, 1, 2026, 0.6f);
+        vm.resetQuartersSync(FiscalQuarterPreset.FEB_START, 2, 0.6f);
 
         assertEquals(0, attendanceDayDao.getByQuarterId(qId).size());
     }
 
     @Test
     public void resetQuartersSync_appliesTargetToAllNewQuarters() {
-        vm.resetQuartersSync(FiscalQuarterPreset.CALENDAR, 1, 2026, 0.75f);
+        vm.resetQuartersSync(FiscalQuarterPreset.FEB_START, 2, 0.75f);
 
         List<Quarter> quarters = quarterDao.getAll();
         assertTrue(quarters.stream().allMatch(qx -> Math.abs(qx.targetPercentage - 0.75f) < 0.001f));
@@ -157,7 +146,7 @@ public class SettingsViewModelTest {
         existing.id = 1;
         configDao.upsert(existing);
 
-        vm.resetQuartersSync(FiscalQuarterPreset.MAY_START, 1, 2026, 0.6f);
+        vm.resetQuartersSync(FiscalQuarterPreset.MAY_START, 2, 0.6f);
 
         AppConfig cfg = configDao.get();
         assertNotNull(cfg);
@@ -166,18 +155,17 @@ public class SettingsViewModelTest {
 
     @Test
     public void resetQuartersSync_customPreset_createsQuartersFromCustomMonth() {
-        vm.resetQuartersSync(FiscalQuarterPreset.CUSTOM, 3, 2026, 0.6f);
+        vm.resetQuartersSync(FiscalQuarterPreset.CUSTOM, 3, 0.6f);
 
         List<Quarter> quarters = quarterDao.getAll();
         assertEquals(4, quarters.size());
         Quarter q1 = quarters.stream().filter(qx -> qx.quarterNumber == 1).findFirst().orElse(null);
         assertNotNull(q1);
-        assertEquals(LocalDate.of(2026, 3, 1), q1.startDate);
+        assertEquals(3, q1.startDate.getMonthValue());
     }
 
-    private Quarter quarter(int fy, int qn, LocalDate start, LocalDate end, float target) {
+    private Quarter quarter(int qn, LocalDate start, LocalDate end, float target) {
         Quarter q = new Quarter();
-        q.fiscalYear = fy;
         q.quarterNumber = qn;
         q.startDate = start;
         q.endDate = end;

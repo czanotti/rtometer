@@ -6,7 +6,6 @@ import androidx.lifecycle.ViewModel;
 
 import com.rtometer.calculator.FiscalQuarterFactory;
 import com.rtometer.calculator.FiscalQuarterPreset;
-import com.rtometer.data.BankHolidayFetcher;
 import com.rtometer.data.db.AppConfig;
 import com.rtometer.data.db.AppConfigDao;
 import com.rtometer.data.db.BankHolidayDao;
@@ -14,9 +13,7 @@ import com.rtometer.data.db.Office;
 import com.rtometer.data.db.OfficeDao;
 import com.rtometer.data.db.Quarter;
 import com.rtometer.data.db.QuarterDao;
-import com.rtometer.data.model.BankHolidayCountry;
 
-import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -35,19 +32,16 @@ public class OnboardingViewModel extends ViewModel {
     final BankHolidayDao bankHolidayDao;
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
-    private FiscalQuarterPreset preset = FiscalQuarterPreset.CALENDAR;
-    private int customStartMonth = 1;
-    private int selectedYear = LocalDate.now().getYear();
-    private int targetPercentage = 60;
-    private LocalTime workDayStart = LocalTime.of(8, 0);
+    private FiscalQuarterPreset preset = FiscalQuarterPreset.FEB_START;
+    private int customStartMonth = 2;
+    private int targetPercentage = 50;
+    private LocalTime workDayStart = LocalTime.of(9, 30);
     private LocalTime workDayEnd = LocalTime.of(18, 0);
-    private int gpsIntervalMinutes = 15;
+    private int gpsIntervalMinutes = 120;
     private String officeName = "";
     private double officeLat = 0;
     private double officeLng = 0;
     private int officeRadiusMeters = 200;
-    private BankHolidayCountry bankHolidayCountry = null;
-    private int preloadCount = 0;
 
     private final MutableLiveData<Boolean> finished = new MutableLiveData<>();
 
@@ -62,7 +56,6 @@ public class OnboardingViewModel extends ViewModel {
 
     public void setPreset(FiscalQuarterPreset preset) { this.preset = preset; }
     public void setCustomStartMonth(int month) { this.customStartMonth = month; }
-    public void setSelectedYear(int year) { this.selectedYear = year; }
     public void setTargetPercentage(int pct) { this.targetPercentage = pct; }
     public void setWorkDayStart(LocalTime t) { this.workDayStart = t; }
     public void setWorkDayEnd(LocalTime t) { this.workDayEnd = t; }
@@ -71,8 +64,6 @@ public class OnboardingViewModel extends ViewModel {
     public void setOfficeLat(double lat) { this.officeLat = lat; }
     public void setOfficeLng(double lng) { this.officeLng = lng; }
     public void setOfficeRadiusMeters(int r) { this.officeRadiusMeters = r; }
-    public void setBankHolidayCountry(BankHolidayCountry country) { this.bankHolidayCountry = country; }
-    public void setPreloadCount(int count) { this.preloadCount = count; }
 
     public LiveData<Boolean> getFinished() { return finished; }
 
@@ -86,20 +77,14 @@ public class OnboardingViewModel extends ViewModel {
     void persistSync() {
         List<Quarter> quarters;
         if (preset == FiscalQuarterPreset.CUSTOM) {
-            quarters = FiscalQuarterFactory.createCustom(customStartMonth, selectedYear, 0);
+            quarters = FiscalQuarterFactory.createCustom(customStartMonth);
         } else {
-            quarters = FiscalQuarterFactory.create(preset, selectedYear, 0);
+            quarters = FiscalQuarterFactory.create(preset);
         }
 
-        LocalDate today = LocalDate.now();
         for (Quarter q : quarters) {
             q.targetPercentage = targetPercentage / 100f;
-            long id = quarterDao.insert(q);
-            if (preloadCount > 0 && !today.isBefore(q.startDate) && !today.isAfter(q.endDate)) {
-                q.id = id;
-                q.preloadCount = preloadCount;
-                quarterDao.update(q);
-            }
+            quarterDao.insert(q);
         }
 
         Office office = new Office();
@@ -115,21 +100,9 @@ public class OnboardingViewModel extends ViewModel {
         config.workDayStart = workDayStart;
         config.workDayEnd = workDayEnd;
         config.gpsIntervalMinutes = gpsIntervalMinutes;
-        config.bankHolidayCountry = bankHolidayCountry != null ? bankHolidayCountry.name() : null;
-        config.fiscalYearOffset = 0;
         config.fiscalQuarterPreset = preset.name();
-        config.customStartMonth = (preset == FiscalQuarterPreset.CUSTOM) ? customStartMonth : 1;
+        config.customStartMonth = (preset == FiscalQuarterPreset.CUSTOM) ? customStartMonth : 2;
         configDao.upsert(config);
-
-        if (bankHolidayCountry != null) {
-            String code = bankHolidayCountry.name();
-            int year = LocalDate.now().getYear();
-            for (int y = year; y <= year + 1; y++) {
-                try {
-                    bankHolidayDao.insertAll(BankHolidayFetcher.fetch(code, y));
-                } catch (Exception ignored) {}
-            }
-        }
     }
 
     @Override

@@ -10,7 +10,7 @@
         style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:max="6"
+        android:max="4"
         android:progress="1" />
 
     <TextView
@@ -19,7 +19,7 @@
         android:layout_height="wrap_content"
         android:gravity="end"
         android:paddingBottom="8dp"
-        android:text="Step 1 of 6"
+        android:text="Step 1 of 4"
         android:textSize="12sp" />
 
     <FrameLayout
@@ -46,14 +46,6 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1" />
-
-        <Button
-            android:id="@+id/btnSkip"
-            style="@style/Widget.MaterialComponents.Button.TextButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/btn_skip"
-            android:visibility="gone" />
 
         <Button
             android:id="@+id/btnNext"

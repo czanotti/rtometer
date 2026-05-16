@@ -6,12 +6,11 @@
     <string name="step_of">Step %1$d of %2$d</string>
     <string name="btn_back">Back</string>
     <string name="btn_next">Next</string>
-    <string name="btn_skip">Skip</string>
     <string name="btn_finish">Finish</string>
 
     <!-- Step 1 -->
     <string name="step1_title">Fiscal Quarter</string>
-    <string name="step1_subtitle">Select your fiscal quarter preset and year</string>
+    <string name="step1_subtitle">Select your quarter start month</string>
     <string name="preset_calendar">Calendar (Jan, Apr, Jul, Oct)</string>
     <string name="preset_feb_start">Feb start (Feb, May, Aug, Nov)</string>
     <string name="preset_apr_start">Apr start (Apr, Jul, Oct, Jan)</string>
@@ -38,22 +37,6 @@
     <string name="lat_hint">Latitude</string>
     <string name="lng_hint">Longitude</string>
     <string name="radius_hint">Radius (meters)</string>
-
-    <!-- Step 5 -->
-    <string name="step5_title">Bank Holidays</string>
-    <string name="step5_subtitle">Select your country to skip bank holidays automatically (optional)</string>
-    <string name="country_it">Italy (IT)</string>
-    <string name="country_gb">United Kingdom (GB)</string>
-    <string name="country_us">United States (US)</string>
-    <string name="country_de">Germany (DE)</string>
-    <string name="country_fr">France (FR)</string>
-
-    <!-- Step 6 -->
-    <string name="step6_title">Pre-load Days</string>
-    <string name="step6_subtitle">Have you already attended the office this quarter?</string>
-    <string name="preload_no">No, start from zero</string>
-    <string name="preload_yes">Yes — enter the number of days I attended</string>
-    <string name="preload_count_hint">Days</string>
 
     <!-- Bottom navigation -->
     <string name="nav_dashboard">Dashboard</string>
@@ -110,7 +93,7 @@
     <string name="dashboard_empty_title">No quarter configured</string>
     <string name="dashboard_empty_subtitle">Open Settings, confirm your quarter preset and year, then tap Save</string>
     <string name="dashboard_empty_cta">Open Settings</string>
-    <string name="dashboard_quarter_label">%1$s Q%2$d · %3$s – %4$s</string>
+    <string name="dashboard_quarter_label">Q%1$d · %2$s – %3$s</string>
     <string name="dashboard_target_label">Target: %1$d%%</string>
     <string name="dashboard_pace_green">● On Track</string>
     <string name="dashboard_pace_amber">● At Risk</string>

@@ -5,7 +5,6 @@ import androidx.lifecycle.ViewModel;
 
 import com.rtometer.calculator.FiscalQuarterFactory;
 import com.rtometer.calculator.FiscalQuarterPreset;
-import com.rtometer.data.BankHolidayFetcher;
 import com.rtometer.data.db.AppConfig;
 import com.rtometer.data.db.AppConfigDao;
 import com.rtometer.data.db.BankHolidayDao;
@@ -50,22 +49,14 @@ public class SettingsViewModel extends ViewModel {
         }
         config.postValue(cfg);
         currentQuarter.postValue(quarterDao.getByDate(LocalDate.now().toString()));
-
-        if (cfg.bankHolidayCountry != null
-                && bankHolidayDao.getByYear(LocalDate.now().getYear()).isEmpty()) {
-            refreshBankHolidays(cfg.bankHolidayCountry);
-        }
     }
 
-    public void saveConfig(LocalTime start, LocalTime end, int gps, String country,
+    public void saveConfig(LocalTime start, LocalTime end, int gps,
                            FiscalQuarterPreset preset, int customMonth) {
-        executor.submit(() -> {
-            saveConfigSync(start, end, gps, country, preset, customMonth);
-            refreshBankHolidays(country);
-        });
+        executor.submit(() -> saveConfigSync(start, end, gps, preset, customMonth));
     }
 
-    void saveConfigSync(LocalTime start, LocalTime end, int gps, String country,
+    void saveConfigSync(LocalTime start, LocalTime end, int gps,
                         FiscalQuarterPreset preset, int customMonth) {
         AppConfig cfg = configDao.get();
         if (cfg == null) {
@@ -75,22 +66,10 @@ public class SettingsViewModel extends ViewModel {
         cfg.workDayStart = start;
         cfg.workDayEnd = end;
         cfg.gpsIntervalMinutes = gps;
-        cfg.bankHolidayCountry = country;
         cfg.fiscalQuarterPreset = preset.name();
-        cfg.customStartMonth = (preset == FiscalQuarterPreset.CUSTOM) ? customMonth : 1;
+        cfg.customStartMonth = (preset == FiscalQuarterPreset.CUSTOM) ? customMonth : 2;
         configDao.upsert(cfg);
         config.postValue(cfg);
-    }
-
-    void refreshBankHolidays(String country) {
-        bankHolidayDao.deleteAllFetched();
-        if (country == null) return;
-        int year = LocalDate.now().getYear();
-        for (int y = year; y <= year + 1; y++) {
-            try {
-                bankHolidayDao.insertAll(BankHolidayFetcher.fetch(country, y));
-            } catch (Exception ignored) {}
-        }
     }
 
     public void saveQuarterTarget(long quarterId, float target) {
@@ -105,18 +84,18 @@ public class SettingsViewModel extends ViewModel {
         currentQuarter.postValue(q);
     }
 
-    public void resetQuarters(FiscalQuarterPreset preset, int customMonth, int year, float target) {
-        executor.submit(() -> resetQuartersSync(preset, customMonth, year, target));
+    public void resetQuarters(FiscalQuarterPreset preset, int customMonth, float target) {
+        executor.submit(() -> resetQuartersSync(preset, customMonth, target));
     }
 
-    void resetQuartersSync(FiscalQuarterPreset preset, int customMonth, int year, float target) {
+    void resetQuartersSync(FiscalQuarterPreset preset, int customMonth, float target) {
         quarterDao.deleteAll();
 
         List<Quarter> quarters;
         if (preset == FiscalQuarterPreset.CUSTOM) {
-            quarters = FiscalQuarterFactory.createCustom(customMonth, year, 0);
+            quarters = FiscalQuarterFactory.createCustom(customMonth);
         } else {
-            quarters = FiscalQuarterFactory.create(preset, year, 0);
+            quarters = FiscalQuarterFactory.create(preset);
         }
         for (Quarter q : quarters) {
             q.targetPercentage = target;
@@ -129,7 +108,7 @@ public class SettingsViewModel extends ViewModel {
             cfg.id = 1;
         }
         cfg.fiscalQuarterPreset = preset.name();
-        cfg.customStartMonth = (preset == FiscalQuarterPreset.CUSTOM) ? customMonth : 1;
+        cfg.customStartMonth = (preset == FiscalQuarterPreset.CUSTOM) ? customMonth : 2;
         configDao.upsert(cfg);
         config.postValue(cfg);
         currentQuarter.postValue(quarterDao.getByDate(LocalDate.now().toString()));

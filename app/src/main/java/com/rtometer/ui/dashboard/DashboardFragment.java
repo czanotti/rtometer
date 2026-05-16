@@ -86,7 +86,6 @@ public class DashboardFragment extends Fragment {
 
     private String formatQuarterLabel(Quarter q) {
         return getString(R.string.dashboard_quarter_label,
-                q.fiscalYear,
                 q.quarterNumber,
                 q.startDate.format(MONTH_DAY),
                 q.endDate.format(MONTH_DAY));
