@@ -8,6 +8,8 @@ import androidx.room.Room;
 import androidx.room.RoomDatabase;
 import androidx.room.TypeConverters;
 
+import net.sqlcipher.database.SupportFactory;
+
 @Database(entities = {Quarter.class, Office.class, AttendanceDay.class, AppConfig.class, BankHoliday.class}, version = 1, exportSchema = false)
 @TypeConverters(Converters.class)
 public abstract class AppDatabase extends RoomDatabase {
@@ -18,11 +20,14 @@ public abstract class AppDatabase extends RoomDatabase {
         if (INSTANCE == null) {
             synchronized (AppDatabase.class) {
                 if (INSTANCE == null) {
+                    byte[] passphrase = new KeystoreKeyProvider(context).getOrCreatePassphrase();
+                    SupportFactory factory = new SupportFactory(passphrase);
                     INSTANCE = Room.databaseBuilder(
                             context.getApplicationContext(),
                             AppDatabase.class,
                             "rtometer.db"
                     )
+                    .openHelperFactory(factory)
                     .build();
                 }
             }
