@@ -23,10 +23,7 @@ public interface QuarterDao {
     @Query("SELECT * FROM quarters WHERE id = :id")
     Quarter getById(long id);
 
-    @Query("SELECT * FROM quarters WHERE fiscalYear = :fy AND quarterNumber = :qn LIMIT 1")
-    Quarter getByFiscalYearAndNumber(int fy, int qn);
-
-    @Query("SELECT * FROM quarters ORDER BY fiscalYear DESC, quarterNumber DESC")
+    @Query("SELECT * FROM quarters ORDER BY startDate DESC")
     List<Quarter> getAll();
 
     @Query("SELECT * FROM quarters WHERE startDate <= :date AND endDate >= :date LIMIT 1")

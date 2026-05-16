@@ -57,9 +57,8 @@ public class HistoryRepositoryTest {
         db.close();
     }
 
-    private Quarter pastQuarter(int fiscalYear, int quarterNumber) {
+    private Quarter pastQuarter(int quarterNumber) {
         Quarter q = new Quarter();
-        q.fiscalYear = fiscalYear;
         q.quarterNumber = quarterNumber;
         q.startDate = LocalDate.of(2025, 2, 1);
         q.endDate = LocalDate.of(2025, 4, 30);
@@ -75,7 +74,6 @@ public class HistoryRepositoryTest {
     @Test
     public void currentQuarter_excluded() {
         Quarter q = new Quarter();
-        q.fiscalYear = 2026;
         q.quarterNumber = 2;
         q.startDate = LocalDate.now().minusMonths(1);
         q.endDate = LocalDate.now().plusMonths(2);
@@ -87,7 +85,7 @@ public class HistoryRepositoryTest {
 
     @Test
     public void pastQuarter_included() {
-        quarterDao.insert(pastQuarter(2025, 1));
+        quarterDao.insert(pastQuarter(1));
 
         List<PastQuarterEntry> result = repository.loadPastQuarters();
 
@@ -97,7 +95,7 @@ public class HistoryRepositoryTest {
 
     @Test
     public void pastQuarter_statsIncludeAttendedDays() {
-        long id = quarterDao.insert(pastQuarter(2025, 1));
+        long id = quarterDao.insert(pastQuarter(1));
 
         AttendanceDay d1 = new AttendanceDay();
         d1.date = LocalDate.of(2025, 2, 3);
@@ -118,9 +116,8 @@ public class HistoryRepositoryTest {
 
     @Test
     public void pastQuarter_targetMetWhenSufficient() {
-        Quarter q = pastQuarter(2025, 1);
-        q.targetPercentage = 0.5f;
-        q.preloadCount = 100;
+        Quarter q = pastQuarter(1);
+        q.targetPercentage = 0.0f; // zero target is always met
         quarterDao.insert(q);
 
         List<PastQuarterEntry> result = repository.loadPastQuarters();
@@ -132,14 +129,12 @@ public class HistoryRepositoryTest {
     @Test
     public void multiplePastQuarters_returnedNewestFirst() {
         Quarter q1 = new Quarter();
-        q1.fiscalYear = 2025;
         q1.quarterNumber = 1;
         q1.startDate = LocalDate.of(2025, 2, 1);
         q1.endDate = LocalDate.of(2025, 4, 30);
         q1.targetPercentage = 0.5f;
 
         Quarter q2 = new Quarter();
-        q2.fiscalYear = 2025;
         q2.quarterNumber = 2;
         q2.startDate = LocalDate.of(2025, 5, 1);
         q2.endDate = LocalDate.of(2025, 7, 31);
@@ -157,9 +152,8 @@ public class HistoryRepositoryTest {
 
     @Test
     public void mixedQuarters_onlyPastReturned() {
-        Quarter past = pastQuarter(2025, 1);
+        Quarter past = pastQuarter(1);
         Quarter current = new Quarter();
-        current.fiscalYear = 2026;
         current.quarterNumber = 2;
         current.startDate = LocalDate.now().minusMonths(1);
         current.endDate = LocalDate.now().plusMonths(2);
@@ -171,6 +165,6 @@ public class HistoryRepositoryTest {
         List<PastQuarterEntry> result = repository.loadPastQuarters();
 
         assertEquals(1, result.size());
-        assertEquals(2025, result.get(0).quarter.fiscalYear);
+        assertEquals(1, result.get(0).quarter.quarterNumber);
     }
 }

@@ -92,7 +92,6 @@ public class GpsDetectionWorkerTest {
 
     private long insertQuarterContainingToday() {
         Quarter q = new Quarter();
-        q.fiscalYear = 2025;
         q.quarterNumber = 1;
         q.startDate = LocalDate.now().minusMonths(1);
         q.endDate = LocalDate.now().plusMonths(2);

@@ -5,7 +5,6 @@ import android.content.Context;
 import androidx.room.Room;
 import androidx.test.core.app.ApplicationProvider;
 
-import com.rtometer.data.model.BankHolidayCountry;
 
 import org.junit.After;
 import org.junit.Before;

@@ -29,7 +29,7 @@ public class QuarterCalculator {
         int totalWorkingDays = countWorkingDays(
                 quarter.startDate, quarter.endDate, bankHolidaySet, statusByDate);
 
-        int daysAttended = quarter.preloadCount;
+        int daysAttended = 0;
         int daysNotInOffice = 0;
         for (AttendanceDay d : days) {
             if (d.status == DayStatus.IN_OFFICE) {

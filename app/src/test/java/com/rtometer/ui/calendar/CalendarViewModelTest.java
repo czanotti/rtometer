@@ -374,7 +374,6 @@ public class CalendarViewModelTest {
 
     private static Quarter quarter(LocalDate start, LocalDate end) {
         Quarter q = new Quarter();
-        q.fiscalYear = start.getYear();
         q.quarterNumber = 1;
         q.startDate = start;
         q.endDate = end;
