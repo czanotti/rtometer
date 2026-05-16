@@ -23,6 +23,8 @@ import androidx.lifecycle.ViewModelProvider;
 import com.rtometer.R;
 import com.rtometer.data.db.Office;
 
+import dagger.hilt.android.AndroidEntryPoint;
+
 import org.osmdroid.config.Configuration;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.util.GeoPoint;
@@ -33,6 +35,7 @@ import org.osmdroid.events.MapEventsReceiver;
 
 import java.util.List;
 
+@AndroidEntryPoint
 public class OfficeEditFragment extends DialogFragment {
 
     private static final String ARG_OFFICE_ID = "office_id";
@@ -58,6 +61,7 @@ public class OfficeEditFragment extends DialogFragment {
     private EditText etName;
     private SeekBar radiusSeekBar;
     private TextView radiusLabel;
+    private TextView tvCoords;
     private double selectedLat = DEFAULT_LAT;
     private double selectedLon = DEFAULT_LON;
     private Office editingOffice;
@@ -78,13 +82,12 @@ public class OfficeEditFragment extends DialogFragment {
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        viewModel = new ViewModelProvider(requireParentFragment() != null
-                ? requireParentFragment() : requireActivity())
-                .get(OfficeSetupViewModel.class);
+        viewModel = new ViewModelProvider(requireActivity()).get(OfficeSetupViewModel.class);
 
         etName = view.findViewById(R.id.etOfficeName);
         radiusSeekBar = view.findViewById(R.id.radiusSeekBar);
         radiusLabel = view.findViewById(R.id.radiusLabel);
+        tvCoords = view.findViewById(R.id.tvCoords);
         Button btnCurrentLocation = view.findViewById(R.id.btnCurrentLocation);
         Button btnSave = view.findViewById(R.id.btnSave);
         Button btnCancel = view.findViewById(R.id.btnCancel);
@@ -101,6 +104,7 @@ public class OfficeEditFragment extends DialogFragment {
             @Override public void onStopTrackingTouch(SeekBar s) {}
         });
 
+        tvCoords.setText(getString(R.string.office_coords_label, selectedLat, selectedLon));
         setupMap(view);
         loadEditingOffice();
 
@@ -164,6 +168,7 @@ public class OfficeEditFragment extends DialogFragment {
         pinMarker.setPosition(point);
         mapView.getController().animateTo(point);
         mapView.invalidate();
+        tvCoords.setText(getString(R.string.office_coords_label, lat, lon));
     }
 
     private void useCurrentLocation() {

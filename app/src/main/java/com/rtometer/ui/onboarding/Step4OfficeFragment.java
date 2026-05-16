@@ -4,20 +4,21 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.google.android.material.textfield.TextInputEditText;
+
 import com.rtometer.R;
 
 public class Step4OfficeFragment extends Fragment implements OnboardingActivity.FragmentStep {
 
-    private EditText etName;
-    private EditText etLat;
-    private EditText etLng;
-    private EditText etRadius;
+    private TextInputEditText etName;
+    private TextInputEditText etLat;
+    private TextInputEditText etLng;
+    private TextInputEditText etRadius;
 
     @Nullable
     @Override
@@ -33,9 +34,6 @@ public class Step4OfficeFragment extends Fragment implements OnboardingActivity.
         etLng = view.findViewById(R.id.etLng);
         etRadius = view.findViewById(R.id.etRadius);
 
-        etName.setText("Kings Building");
-        etLat.setText("53.3478");
-        etLng.setText("-6.27591");
         etRadius.setText("200");
     }
 
