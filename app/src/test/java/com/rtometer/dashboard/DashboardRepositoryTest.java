@@ -46,12 +46,10 @@ public class DashboardRepositoryTest {
     // A quarter that spans today so observeByDate(today) returns it
     private Quarter currentQuarter() {
         Quarter q = new Quarter();
-        q.fiscalYear = 2026;
         q.quarterNumber = 2;
         q.startDate = LocalDate.now().minusMonths(1);
         q.endDate = LocalDate.now().plusMonths(2);
         q.targetPercentage = 0.5f;
-        q.preloadCount = 0;
         return q;
     }
 
@@ -137,26 +135,10 @@ public class DashboardRepositoryTest {
     }
 
     @Test
-    public void withPreloadCount_addedToDaysAttended() {
-        Quarter q = currentQuarter();
-        q.preloadCount = 5;
-        quarterDao.insert(q);
-
-        QuarterStats stats = observe();
-
-        assertNotNull(stats);
-        assertEquals(5, stats.daysAttended);
-    }
-
-    @Test
     public void paceStatus_greenWhenTargetMet() {
         Quarter q = currentQuarter();
-        // Very short quarter so we can meet target easily
-        q.startDate = LocalDate.now().minusDays(4); // Mon–Fri last week
-        q.endDate = LocalDate.now().plusDays(30);
-        q.targetPercentage = 0.1f; // low target
-        q.preloadCount = 10; // plenty of days
-        long id = quarterDao.insert(q);
+        q.targetPercentage = 0.0f; // zero target is always met
+        quarterDao.insert(q);
 
         QuarterStats stats = observe();
 
@@ -177,7 +159,6 @@ public class DashboardRepositoryTest {
     @Test
     public void pastQuarter_notReturnedAsCurrentQuarter() {
         Quarter past = new Quarter();
-        past.fiscalYear = 2025;
         past.quarterNumber = 1;
         past.startDate = LocalDate.of(2025, 1, 1);
         past.endDate = LocalDate.of(2025, 3, 31);

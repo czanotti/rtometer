@@ -23,7 +23,7 @@ public class Step3HoursFragment extends Fragment implements OnboardingActivity.F
     private Button btnEnd;
     private EditText etGpsInterval;
 
-    private LocalTime workStart = LocalTime.of(8, 0);
+    private LocalTime workStart = LocalTime.of(9, 30);
     private LocalTime workEnd = LocalTime.of(18, 0);
 
     @Nullable
@@ -38,7 +38,7 @@ public class Step3HoursFragment extends Fragment implements OnboardingActivity.F
         btnStart = view.findViewById(R.id.btnWorkStart);
         btnEnd = view.findViewById(R.id.btnWorkEnd);
         etGpsInterval = view.findViewById(R.id.etGpsInterval);
-        etGpsInterval.setText("15");
+        etGpsInterval.setText("90");
         updateLabels();
 
         btnStart.setOnClickListener(v -> new TimePickerDialog(requireContext(),
