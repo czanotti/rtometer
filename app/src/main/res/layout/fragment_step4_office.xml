@@ -23,36 +23,60 @@
             android:paddingBottom="16dp"
             android:text="@string/step4_subtitle" />
 
-        <EditText
-            android:id="@+id/etOfficeName"
+        <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/office_name_hint"
-            android:inputType="text"
-            android:layout_marginBottom="12dp" />
+            android:layout_marginBottom="12dp"
+            android:hint="@string/office_name_hint">
 
-        <EditText
-            android:id="@+id/etLat"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="@string/lat_hint"
-            android:inputType="numberDecimal|numberSigned"
-            android:layout_marginBottom="12dp" />
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etOfficeName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="text" />
 
-        <EditText
-            android:id="@+id/etLng"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="@string/lng_hint"
-            android:inputType="numberDecimal|numberSigned"
-            android:layout_marginBottom="12dp" />
+        </com.google.android.material.textfield.TextInputLayout>
 
-        <EditText
-            android:id="@+id/etRadius"
+        <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/radius_hint"
-            android:inputType="number" />
+            android:layout_marginBottom="12dp"
+            android:hint="@string/lat_hint">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etLat"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="numberDecimal|numberSigned" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            android:hint="@string/lng_hint">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etLng"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="numberDecimal|numberSigned" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/radius_hint">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etRadius"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="number" />
+
+        </com.google.android.material.textfield.TextInputLayout>
 
     </LinearLayout>
 </ScrollView>
