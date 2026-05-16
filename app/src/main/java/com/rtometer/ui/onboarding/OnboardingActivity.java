@@ -68,8 +68,9 @@ public class OnboardingActivity extends SecureActivity {
         });
 
         btnNext.setOnClickListener(v -> {
-            FragmentStep step = steps.get(currentStep);
-            if (!step.isValid()) return;
+            FragmentStep step = (FragmentStep) getSupportFragmentManager()
+                    .findFragmentById(R.id.container);
+            if (step == null || !step.isValid()) return;
             step.saveToViewModel(vm);
             if (currentStep == steps.size() - 1) {
                 btnNext.setEnabled(false);
