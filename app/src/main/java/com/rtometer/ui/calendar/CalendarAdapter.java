@@ -181,9 +181,7 @@ public class CalendarAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 });
             } else {
                 itemView.setOnClickListener(v -> {
-                    if (listener != null && !day.isWeekend) {
-                        listener.onDayClick(day);
-                    }
+                    if (listener != null) listener.onDayClick(day);
                 });
             }
         }
