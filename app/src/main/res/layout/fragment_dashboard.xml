@@ -133,27 +133,6 @@
                 android:gravity="center">
 
                 <TextView
-                    android:id="@+id/daysOutCount"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="32sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/dashboard_days_out"
-                    android:textSize="12sp" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical"
-                android:gravity="center">
-
-                <TextView
                     android:id="@+id/daysRemainingCount"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -188,6 +167,13 @@
                     android:textSize="12sp" />
             </LinearLayout>
         </LinearLayout>
+
+        <!-- Burndown chart -->
+        <com.rtometer.ui.dashboard.BurndownView
+            android:id="@+id/burndownChart"
+            android:layout_width="match_parent"
+            android:layout_height="160dp"
+            android:layout_marginTop="24dp" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
