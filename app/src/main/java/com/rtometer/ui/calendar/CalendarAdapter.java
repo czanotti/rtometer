@@ -22,7 +22,7 @@ import java.util.Set;
 
 public class CalendarAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    static final int TYPE_MONTH_HEADER = 0;
+    public static final int TYPE_MONTH_HEADER = 0;
     static final int TYPE_WEEKDAY = 1;
     static final int TYPE_EMPTY = 2;
     static final int TYPE_DAY = 3;
@@ -30,11 +30,11 @@ public class CalendarAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     private static final String[] WEEKDAY_LABELS = {"Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"};
     private static final DateTimeFormatter MONTH_FMT = DateTimeFormatter.ofPattern("MMMM yyyy", Locale.getDefault());
 
-    interface OnDayClickListener {
+    public interface OnDayClickListener {
         void onDayClick(CalendarDay day);
     }
 
-    interface OnBulkDayToggleListener {
+    public interface OnBulkDayToggleListener {
         void onBulkDayToggle(CalendarDay day);
     }
 

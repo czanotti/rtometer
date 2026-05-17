@@ -14,10 +14,15 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.rtometer.R;
 
+import java.time.format.DateTimeFormatter;
+import java.util.Locale;
+
 import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
 public class HistoryFragment extends Fragment {
+
+    private static final DateTimeFormatter MONTH_DAY = DateTimeFormatter.ofPattern("MMM d");
 
     private HistoryViewModel viewModel;
     private HistoryAdapter adapter;
@@ -34,6 +39,17 @@ public class HistoryFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         viewModel = new ViewModelProvider(this).get(HistoryViewModel.class);
         adapter = new HistoryAdapter();
+        adapter.setOnQuarterClickListener(entry -> {
+            String label = getString(R.string.dashboard_quarter_label,
+                    entry.quarter.quarterNumber,
+                    entry.quarter.startDate.format(MONTH_DAY),
+                    entry.quarter.endDate.format(MONTH_DAY));
+            requireActivity().getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.fragmentContainer, HistoryDetailFragment.newInstance(entry.quarter.id, label))
+                    .addToBackStack(null)
+                    .commit();
+        });
 
         RecyclerView recycler = view.findViewById(R.id.historyRecycler);
         recycler.setLayoutManager(new LinearLayoutManager(requireContext()));
