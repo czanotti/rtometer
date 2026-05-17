@@ -100,7 +100,6 @@
     <string name="dashboard_pace_amber">● At Risk</string>
     <string name="dashboard_pace_red">● Behind</string>
     <string name="dashboard_days_in_office">Days in office</string>
-    <string name="dashboard_days_out">Days out</string>
     <string name="dashboard_days_remaining">Days remaining</string>
     <string name="dashboard_days_needed">Days needed</string>
 

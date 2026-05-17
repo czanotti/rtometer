@@ -52,9 +52,9 @@ public class DashboardFragment extends Fragment {
         TextView targetLabel = view.findViewById(R.id.targetLabel);
         TextView paceChip = view.findViewById(R.id.paceChip);
         TextView daysInOffice = view.findViewById(R.id.daysInOfficeCount);
-        TextView daysOut = view.findViewById(R.id.daysOutCount);
         TextView daysRemaining = view.findViewById(R.id.daysRemainingCount);
         TextView daysNeeded = view.findViewById(R.id.daysNeededCount);
+        BurndownView burndownChart = view.findViewById(R.id.burndownChart);
 
         MainViewModel viewModel = new ViewModelProvider(requireActivity()).get(MainViewModel.class);
 
@@ -78,9 +78,10 @@ public class DashboardFragment extends Fragment {
             progressBar.setProgress(pct);
             paceChip.setText(paceLabel(stats.paceStatus));
             daysInOffice.setText(String.valueOf(stats.daysAttended));
-            daysOut.setText(String.valueOf(stats.daysNotInOffice));
             daysRemaining.setText(String.valueOf(stats.daysRemaining));
             daysNeeded.setText(String.valueOf(stats.daysNeeded));
+            burndownChart.setData(stats.totalWorkingDays, stats.daysTarget,
+                    stats.burndownSeries, stats.paceStatus);
         });
     }
 

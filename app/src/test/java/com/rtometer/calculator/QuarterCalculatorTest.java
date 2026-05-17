@@ -290,4 +290,74 @@ public class QuarterCalculatorTest {
         QuarterStats s = QuarterCalculator.calculate(mayJulQuarter(), Collections.emptyList(), Collections.emptyList(), LocalDate.of(2026, 7, 1));
         assertEquals(23, s.daysRemaining);
     }
+
+    // --- Burndown series tests ---
+
+    @Test
+    public void burndownSeries_emptyWhenNoDaysElapsed() {
+        // today is before quarter start → no working days elapsed → empty series
+        Quarter q = twoWeekQuarter(); // starts Jan 6 2025
+        QuarterStats s = QuarterCalculator.calculate(q, Collections.emptyList(), Collections.emptyList(), LocalDate.of(2025, 1, 5));
+        assertEquals(0, s.burndownSeries.size());
+    }
+
+    @Test
+    public void burndownSeries_firstDayInOffice_onePoint() {
+        // today = Jan 6, attended → series has 1 point: dayIndex=1, cumulative=1
+        Quarter q = twoWeekQuarter();
+        List<AttendanceDay> days = List.of(day(q, LocalDate.of(2025, 1, 6), DayStatus.IN_OFFICE));
+        QuarterStats s = QuarterCalculator.calculate(q, days, Collections.emptyList(), LocalDate.of(2025, 1, 6));
+        assertEquals(1, s.burndownSeries.size());
+        assertEquals(1, s.burndownSeries.get(0)[0]); // dayIndex
+        assertEquals(1, s.burndownSeries.get(0)[1]); // cumulative
+    }
+
+    @Test
+    public void burndownSeries_notInOffice_cumulativeDoesNotIncrease() {
+        // Jan 6 NOT_IN_OFFICE, Jan 7 IN_OFFICE → cumulative = [0, 1]
+        Quarter q = twoWeekQuarter();
+        List<AttendanceDay> days = List.of(
+                day(q, LocalDate.of(2025, 1, 6), DayStatus.NOT_IN_OFFICE),
+                day(q, LocalDate.of(2025, 1, 7), DayStatus.IN_OFFICE)
+        );
+        QuarterStats s = QuarterCalculator.calculate(q, days, Collections.emptyList(), LocalDate.of(2025, 1, 7));
+        assertEquals(2, s.burndownSeries.size());
+        assertEquals(0, s.burndownSeries.get(0)[1]); // day 1 cumulative = 0
+        assertEquals(1, s.burndownSeries.get(1)[1]); // day 2 cumulative = 1
+    }
+
+    @Test
+    public void burndownSeries_unrecordedDayCountsAsZero() {
+        // today = Jan 7, no days recorded → 2 points with cumulative=0 each
+        Quarter q = twoWeekQuarter();
+        QuarterStats s = QuarterCalculator.calculate(q, Collections.emptyList(), Collections.emptyList(), LocalDate.of(2025, 1, 7));
+        assertEquals(2, s.burndownSeries.size());
+        assertEquals(0, s.burndownSeries.get(0)[1]);
+        assertEquals(0, s.burndownSeries.get(1)[1]);
+    }
+
+    @Test
+    public void burndownSeries_stopsAtQuarterEnd() {
+        // today is after quarter end → series covers all 10 working days only
+        Quarter q = twoWeekQuarter(); // Jan 6–17
+        QuarterStats s = QuarterCalculator.calculate(q, Collections.emptyList(), Collections.emptyList(), LocalDate.of(2025, 1, 20));
+        assertEquals(10, s.burndownSeries.size());
+    }
+
+    @Test
+    public void burndownSeries_excludesBankHolidayFromSeries() {
+        // Jan 6 is bank holiday → today=Jan 7 → series has 1 point (Jan 7 only)
+        Quarter q = twoWeekQuarter();
+        QuarterStats s = QuarterCalculator.calculate(q, Collections.emptyList(),
+                List.of(LocalDate.of(2025, 1, 6)), LocalDate.of(2025, 1, 7));
+        assertEquals(1, s.burndownSeries.size());
+        assertEquals(1, s.burndownSeries.get(0)[0]); // dayIndex = 1
+    }
+
+    @Test
+    public void daysTarget_calculatedCorrectly() {
+        // 10 working days, 50% target → daysTarget = ceil(5) = 5
+        QuarterStats s = QuarterCalculator.calculate(twoWeekQuarter(), Collections.emptyList(), Collections.emptyList(), LocalDate.of(2025, 1, 6));
+        assertEquals(5, s.daysTarget);
+    }
 }
