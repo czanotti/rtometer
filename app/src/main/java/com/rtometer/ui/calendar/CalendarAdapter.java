@@ -146,11 +146,13 @@ public class CalendarAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     static class DayHolder extends RecyclerView.ViewHolder {
         final TextView dayNumber;
         final View overrideIndicator;
+        final int defaultTextColor;
 
         DayHolder(@NonNull View v) {
             super(v);
             dayNumber = v.findViewById(R.id.dayNumber);
             overrideIndicator = v.findViewById(R.id.overrideIndicator);
+            defaultTextColor = dayNumber.getCurrentTextColor();
         }
 
         void bind(CalendarDay day, OnDayClickListener listener,
@@ -174,6 +176,7 @@ public class CalendarAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 bg = 0xFFEEEEEE;
             }
             itemView.setBackgroundColor(bg);
+            dayNumber.setTextColor(bg != Color.TRANSPARENT ? Color.BLACK : defaultTextColor);
 
             if (inBulkMode) {
                 itemView.setOnClickListener(v -> {
