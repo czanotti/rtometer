@@ -6,6 +6,7 @@ import com.rtometer.data.model.DayStatus;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -59,7 +60,61 @@ public class QuarterCalculator {
             paceStatus = PaceStatus.RED;
         }
 
-        return new QuarterStats(totalWorkingDays, daysAttended, daysNotInOffice, percentage, daysNeeded, daysRemaining, paceStatus);
+        List<int[]> burndownSeries = buildBurndownSeries(quarter, statusByDate, bankHolidaySet, today);
+        List<int[]> monthBoundaries = buildMonthBoundaries(quarter, statusByDate, bankHolidaySet);
+
+        return new QuarterStats(totalWorkingDays, daysAttended, daysNotInOffice, percentage,
+                daysTarget, daysNeeded, daysRemaining, paceStatus, burndownSeries, monthBoundaries);
+    }
+
+    private static List<int[]> buildBurndownSeries(
+            Quarter quarter,
+            Map<LocalDate, DayStatus> statusByDate,
+            Set<LocalDate> bankHolidays,
+            LocalDate today) {
+        List<int[]> series = new ArrayList<>();
+        LocalDate end = today.isAfter(quarter.endDate) ? quarter.endDate : today;
+        if (end.isBefore(quarter.startDate)) return series;
+        int dayIndex = 0;
+        int cumulative = 0;
+        LocalDate d = quarter.startDate;
+        while (!d.isAfter(end)) {
+            if (isWeekday(d) && !bankHolidays.contains(d)) {
+                DayStatus status = statusByDate.get(d);
+                if (status != DayStatus.BANK_HOLIDAY) {
+                    dayIndex++;
+                    if (status == DayStatus.IN_OFFICE) cumulative++;
+                    series.add(new int[]{dayIndex, cumulative});
+                }
+            }
+            d = d.plusDays(1);
+        }
+        return series;
+    }
+
+    private static List<int[]> buildMonthBoundaries(
+            Quarter quarter,
+            Map<LocalDate, DayStatus> statusByDate,
+            Set<LocalDate> bankHolidays) {
+        List<int[]> boundaries = new ArrayList<>();
+        int dayIndex = 0;
+        int seenMonth = -1;
+        LocalDate d = quarter.startDate;
+        while (!d.isAfter(quarter.endDate)) {
+            if (isWeekday(d) && !bankHolidays.contains(d)) {
+                DayStatus status = statusByDate.get(d);
+                if (status != DayStatus.BANK_HOLIDAY) {
+                    dayIndex++;
+                    int month = d.getMonthValue();
+                    if (month != seenMonth) {
+                        seenMonth = month;
+                        boundaries.add(new int[]{dayIndex, month});
+                    }
+                }
+            }
+            d = d.plusDays(1);
+        }
+        return boundaries;
     }
 
     private static int countWorkingDays(
