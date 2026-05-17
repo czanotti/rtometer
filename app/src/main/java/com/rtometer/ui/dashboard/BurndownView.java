@@ -17,13 +17,21 @@ import java.util.List;
 
 public class BurndownView extends View {
 
+    private static final String[] MONTH_SHORT = {
+            "", "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+            "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+    };
+
     private int totalWorkingDays;
     private int daysTarget;
     private List<int[]> series = Collections.emptyList();
+    private List<int[]> monthBoundaries = Collections.emptyList();
 
-    private final Paint targetPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-    private final Paint actualPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-    private final Paint axisPaint  = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private final Paint targetPaint    = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private final Paint actualPaint    = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private final Paint axisPaint      = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private final Paint monthLinePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private final Paint monthLabelPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 
     public BurndownView(Context context) {
         super(context);
@@ -41,10 +49,11 @@ public class BurndownView extends View {
     }
 
     private void init() {
-        float strokeWidth = getResources().getDisplayMetrics().density * 2f;
+        float dp = getResources().getDisplayMetrics().density;
+        float strokeWidth = dp * 2f;
 
         targetPaint.setStyle(Paint.Style.STROKE);
-        targetPaint.setColor(0xFFBDBDBD); // grey 400
+        targetPaint.setColor(0xFFBDBDBD);
         targetPaint.setStrokeWidth(strokeWidth);
         targetPaint.setPathEffect(new DashPathEffect(new float[]{16f, 10f}, 0f));
 
@@ -54,14 +63,25 @@ public class BurndownView extends View {
         actualPaint.setStrokeJoin(Paint.Join.ROUND);
 
         axisPaint.setStyle(Paint.Style.STROKE);
-        axisPaint.setColor(0xFFE0E0E0); // grey 300
+        axisPaint.setColor(0xFFE0E0E0);
         axisPaint.setStrokeWidth(1f);
+
+        monthLinePaint.setStyle(Paint.Style.STROKE);
+        monthLinePaint.setColor(0xFFCFD8DC); // blue-grey 100
+        monthLinePaint.setStrokeWidth(dp);
+        monthLinePaint.setPathEffect(new DashPathEffect(new float[]{6f, 6f}, 0f));
+
+        monthLabelPaint.setColor(0xFF9E9E9E); // grey 600
+        monthLabelPaint.setTextSize(dp * 10f);
+        monthLabelPaint.setTextAlign(Paint.Align.CENTER);
     }
 
-    public void setData(int totalWorkingDays, int daysTarget, List<int[]> series, PaceStatus status) {
+    public void setData(int totalWorkingDays, int daysTarget,
+                        List<int[]> series, List<int[]> monthBoundaries, PaceStatus status) {
         this.totalWorkingDays = totalWorkingDays;
         this.daysTarget = daysTarget;
         this.series = series != null ? series : Collections.emptyList();
+        this.monthBoundaries = monthBoundaries != null ? monthBoundaries : Collections.emptyList();
         actualPaint.setColor(colorForStatus(status));
         invalidate();
     }
@@ -71,20 +91,36 @@ public class BurndownView extends View {
         super.onDraw(canvas);
         if (totalWorkingDays == 0 || daysTarget == 0) return;
 
-        int w = getWidth();
-        int h = getHeight();
-        int pad = (int) (getResources().getDisplayMetrics().density * 8);
-        float chartW = w - pad * 2f;
-        float chartH = h - pad * 2f;
+        float dp = getResources().getDisplayMetrics().density;
+        float topPad    = dp * 16f; // room for month labels
+        float sidePad   = dp * 8f;
+        float bottomPad = dp * 8f;
+
+        float chartW = getWidth()  - sidePad * 2f;
+        float chartH = getHeight() - topPad - bottomPad;
 
         float xScale = chartW / totalWorkingDays;
         float yScale = chartH / daysTarget;
 
-        float originX = pad;
-        float originY = pad + chartH;
+        float originX = sidePad;
+        float originY = topPad + chartH;
+
+        // Month vertical lines and labels (drawn first, behind everything else)
+        for (int[] boundary : monthBoundaries) {
+            int dayIdx  = boundary[0];
+            int monthNum = boundary[1];
+            float x = originX + dayIdx * xScale;
+            String label = MONTH_SHORT[monthNum];
+
+            // Don't draw a line at dayIndex=1 — it sits on top of the Y-axis
+            if (dayIdx > 1) {
+                canvas.drawLine(x, topPad, x, originY, monthLinePaint);
+            }
+            canvas.drawText(label, x, topPad - dp * 3f, monthLabelPaint);
+        }
 
         // Axis lines
-        canvas.drawLine(originX, pad, originX, originY, axisPaint);
+        canvas.drawLine(originX, topPad, originX, originY, axisPaint);
         canvas.drawLine(originX, originY, originX + chartW, originY, axisPaint);
 
         // Target (pace) line

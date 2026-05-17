@@ -81,7 +81,7 @@ public class DashboardFragment extends Fragment {
             daysRemaining.setText(String.valueOf(stats.daysRemaining));
             daysNeeded.setText(String.valueOf(stats.daysNeeded));
             burndownChart.setData(stats.totalWorkingDays, stats.daysTarget,
-                    stats.burndownSeries, stats.paceStatus);
+                    stats.burndownSeries, stats.monthBoundaries, stats.paceStatus);
         });
     }
 

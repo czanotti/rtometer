@@ -61,9 +61,10 @@ public class QuarterCalculator {
         }
 
         List<int[]> burndownSeries = buildBurndownSeries(quarter, statusByDate, bankHolidaySet, today);
+        List<int[]> monthBoundaries = buildMonthBoundaries(quarter, statusByDate, bankHolidaySet);
 
         return new QuarterStats(totalWorkingDays, daysAttended, daysNotInOffice, percentage,
-                daysTarget, daysNeeded, daysRemaining, paceStatus, burndownSeries);
+                daysTarget, daysNeeded, daysRemaining, paceStatus, burndownSeries, monthBoundaries);
     }
 
     private static List<int[]> buildBurndownSeries(
@@ -89,6 +90,31 @@ public class QuarterCalculator {
             d = d.plusDays(1);
         }
         return series;
+    }
+
+    private static List<int[]> buildMonthBoundaries(
+            Quarter quarter,
+            Map<LocalDate, DayStatus> statusByDate,
+            Set<LocalDate> bankHolidays) {
+        List<int[]> boundaries = new ArrayList<>();
+        int dayIndex = 0;
+        int seenMonth = -1;
+        LocalDate d = quarter.startDate;
+        while (!d.isAfter(quarter.endDate)) {
+            if (isWeekday(d) && !bankHolidays.contains(d)) {
+                DayStatus status = statusByDate.get(d);
+                if (status != DayStatus.BANK_HOLIDAY) {
+                    dayIndex++;
+                    int month = d.getMonthValue();
+                    if (month != seenMonth) {
+                        seenMonth = month;
+                        boundaries.add(new int[]{dayIndex, month});
+                    }
+                }
+            }
+            d = d.plusDays(1);
+        }
+        return boundaries;
     }
 
     private static int countWorkingDays(
