@@ -13,10 +13,12 @@ public class QuarterStats {
     public final PaceStatus paceStatus;
     /** Each element is int[]{workingDayIndex, cumulativeAttendance} up to today. */
     public final List<int[]> burndownSeries;
+    /** Each element is int[]{workingDayIndex, monthNumber 1-12} for the first working day of each month in the quarter. */
+    public final List<int[]> monthBoundaries;
 
     public QuarterStats(int totalWorkingDays, int daysAttended, int daysNotInOffice,
                         float percentage, int daysTarget, int daysNeeded, int daysRemaining,
-                        PaceStatus paceStatus, List<int[]> burndownSeries) {
+                        PaceStatus paceStatus, List<int[]> burndownSeries, List<int[]> monthBoundaries) {
         this.totalWorkingDays = totalWorkingDays;
         this.daysAttended = daysAttended;
         this.daysNotInOffice = daysNotInOffice;
@@ -26,5 +28,6 @@ public class QuarterStats {
         this.daysRemaining = daysRemaining;
         this.paceStatus = paceStatus;
         this.burndownSeries = burndownSeries;
+        this.monthBoundaries = monthBoundaries;
     }
 }
