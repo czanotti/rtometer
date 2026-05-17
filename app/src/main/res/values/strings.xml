@@ -34,9 +34,9 @@
     <string name="step4_title">Office Location</string>
     <string name="step4_subtitle">Add your primary office. GPS will check this location during work hours.</string>
     <string name="office_name_hint">Office name</string>
-    <string name="lat_hint">Latitude</string>
-    <string name="lng_hint">Longitude</string>
-    <string name="radius_hint">Radius (meters)</string>
+    <string name="lat_hint">Latitude (decimal degrees, e.g. 51.5074)</string>
+    <string name="lng_hint">Longitude (decimal degrees, e.g. -0.1278)</string>
+    <string name="radius_hint">Detection radius in metres (e.g. 200)</string>
 
     <!-- Bottom navigation -->
     <string name="nav_dashboard">Dashboard</string>
@@ -53,6 +53,7 @@
     <string name="office_map_pin_title">Office location</string>
     <string name="office_use_current_location">Use Current Location</string>
     <string name="office_radius_label">Detection radius: %1$dm</string>
+    <string name="office_coords_label">Lat: %1$.4f  Lon: %2$.4f</string>
     <string name="office_name_required">Office name is required</string>
     <string name="office_location_permission_needed">Location permission required</string>
     <string name="office_location_unavailable">Current location unavailable</string>
