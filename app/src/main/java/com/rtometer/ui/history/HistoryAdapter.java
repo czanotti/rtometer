@@ -6,6 +6,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.rtometer.R;
@@ -20,11 +21,20 @@ import java.util.Locale;
 
 public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHolder> {
 
+    public interface OnQuarterClickListener {
+        void onQuarterClick(PastQuarterEntry entry);
+    }
+
     private List<PastQuarterEntry> entries = Collections.emptyList();
+    @Nullable private OnQuarterClickListener clickListener;
 
     public void setEntries(List<PastQuarterEntry> entries) {
         this.entries = entries;
         notifyDataSetChanged();
+    }
+
+    public void setOnQuarterClickListener(@Nullable OnQuarterClickListener listener) {
+        this.clickListener = listener;
     }
 
     @NonNull
@@ -37,7 +47,11 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        holder.bind(entries.get(position));
+        PastQuarterEntry entry = entries.get(position);
+        holder.bind(entry);
+        holder.itemView.setOnClickListener(v -> {
+            if (clickListener != null) clickListener.onQuarterClick(entry);
+        });
     }
 
     @Override
