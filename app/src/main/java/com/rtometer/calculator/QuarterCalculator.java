@@ -125,7 +125,9 @@ public class QuarterCalculator {
         while (!d.isAfter(to)) {
             if (isWeekday(d) && !bankHolidays.contains(d)) {
                 DayStatus status = statusByDate.get(d);
-                if (status != DayStatus.BANK_HOLIDAY) {
+                if (status != DayStatus.BANK_HOLIDAY
+                        && status != DayStatus.SICK
+                        && status != DayStatus.HOLIDAY) {
                     count++;
                 }
             }
