@@ -60,25 +60,25 @@ public class QuarterCalculatorTest {
     }
 
     @Test
-    public void totalWorkingDays_doesNotExcludeSickDays() {
+    public void totalWorkingDays_excludesSickDays() {
         Quarter q = twoWeekQuarter();
         QuarterStats s = QuarterCalculator.calculate(
                 q,
                 List.of(day(q, LocalDate.of(2025, 1, 7), DayStatus.SICK)),
                 Collections.emptyList(),
                 LocalDate.of(2025, 1, 6));
-        assertEquals(10, s.totalWorkingDays);
+        assertEquals(9, s.totalWorkingDays);
     }
 
     @Test
-    public void totalWorkingDays_doesNotExcludePersonalHolidays() {
+    public void totalWorkingDays_excludesHolidayDays() {
         Quarter q = twoWeekQuarter();
         QuarterStats s = QuarterCalculator.calculate(
                 q,
                 List.of(day(q, LocalDate.of(2025, 1, 8), DayStatus.HOLIDAY)),
                 Collections.emptyList(),
                 LocalDate.of(2025, 1, 6));
-        assertEquals(10, s.totalWorkingDays);
+        assertEquals(9, s.totalWorkingDays);
     }
 
     @Test
@@ -94,27 +94,63 @@ public class QuarterCalculatorTest {
     }
 
     @Test
-    public void sickDayReducesNumeratorNotDenominator() {
-        Quarter q = twoWeekQuarter(); // 10 working days
+    public void sickDayExcludedFromDenominator() {
+        Quarter q = twoWeekQuarter(); // 9 effective working days after sick exclusion
         List<AttendanceDay> days = List.of(
                 day(q, LocalDate.of(2025, 1, 6), DayStatus.IN_OFFICE),
                 day(q, LocalDate.of(2025, 1, 7), DayStatus.SICK)
         );
         QuarterStats s = QuarterCalculator.calculate(q, days, Collections.emptyList(), LocalDate.of(2025, 1, 6));
-        assertEquals(10, s.totalWorkingDays);
+        assertEquals(9, s.totalWorkingDays);
         assertEquals(1, s.daysAttended);
     }
 
     @Test
-    public void holidayDayReducesNumeratorNotDenominator() {
-        Quarter q = twoWeekQuarter(); // 10 working days
+    public void holidayDayExcludedFromDenominator() {
+        Quarter q = twoWeekQuarter(); // 9 effective working days after holiday exclusion
         List<AttendanceDay> days = List.of(
                 day(q, LocalDate.of(2025, 1, 6), DayStatus.IN_OFFICE),
                 day(q, LocalDate.of(2025, 1, 7), DayStatus.HOLIDAY)
         );
         QuarterStats s = QuarterCalculator.calculate(q, days, Collections.emptyList(), LocalDate.of(2025, 1, 6));
-        assertEquals(10, s.totalWorkingDays);
+        assertEquals(9, s.totalWorkingDays);
         assertEquals(1, s.daysAttended);
+    }
+
+    @Test
+    public void daysRemaining_excludesFutureSickDay() {
+        // today = Jan 13 (Mon), daysRemaining normally 5 (Jan 13–17)
+        // Jan 14 pre-marked SICK → daysRemaining = 4
+        Quarter q = twoWeekQuarter();
+        List<AttendanceDay> days = List.of(day(q, LocalDate.of(2025, 1, 14), DayStatus.SICK));
+        QuarterStats s = QuarterCalculator.calculate(q, days, Collections.emptyList(), LocalDate.of(2025, 1, 13));
+        assertEquals(4, s.daysRemaining);
+    }
+
+    @Test
+    public void daysRemaining_excludesFutureHolidayDay() {
+        // today = Jan 13 (Mon), daysRemaining normally 5 (Jan 13–17)
+        // Jan 14 pre-marked HOLIDAY → daysRemaining = 4
+        Quarter q = twoWeekQuarter();
+        List<AttendanceDay> days = List.of(day(q, LocalDate.of(2025, 1, 14), DayStatus.HOLIDAY));
+        QuarterStats s = QuarterCalculator.calculate(q, days, Collections.emptyList(), LocalDate.of(2025, 1, 13));
+        assertEquals(4, s.daysRemaining);
+    }
+
+    @Test
+    public void paceStatus_red_whenFutureSickDaysLeaveInsufficientRemaining() {
+        // today = Jan 13, Jan 14–17 all SICK → daysRemaining=1 (only Jan 13)
+        // totalWorkingDays = 10 - 4 = 6, daysTarget = ceil(0.5*6)=3, daysNeeded=3
+        // 3 > 1 → RED (without fix: daysRemaining=5, daysNeeded=5, 5<=5 → AMBER)
+        Quarter q = twoWeekQuarter();
+        List<AttendanceDay> days = List.of(
+                day(q, LocalDate.of(2025, 1, 14), DayStatus.SICK),
+                day(q, LocalDate.of(2025, 1, 15), DayStatus.SICK),
+                day(q, LocalDate.of(2025, 1, 16), DayStatus.SICK),
+                day(q, LocalDate.of(2025, 1, 17), DayStatus.SICK)
+        );
+        QuarterStats s = QuarterCalculator.calculate(q, days, Collections.emptyList(), LocalDate.of(2025, 1, 13));
+        assertEquals(PaceStatus.RED, s.paceStatus);
     }
 
     @Test
