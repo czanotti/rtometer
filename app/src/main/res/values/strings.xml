@@ -86,6 +86,12 @@
     <string name="settings_reset_message">This will delete all quarters and attendance history for the selected year and recreate them. This cannot be undone.</string>
     <string name="settings_reset_confirm">Reset</string>
 
+    <!-- Debug -->
+    <string name="settings_debug_mode">Debug mode</string>
+    <string name="settings_check_gps_now">Check GPS now</string>
+    <string name="debug_last_gps_none">Last GPS: none</string>
+    <string name="debug_min_distance_na">Min distance: n/a</string>
+
     <!-- GPS banner -->
     <string name="gps_banner_message">GPS detection is off. Days will not be auto-detected — log them manually.</string>
     <string name="gps_banner_settings">Settings</string>

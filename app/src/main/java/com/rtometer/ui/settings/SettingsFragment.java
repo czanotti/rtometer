@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.NumberPicker;
@@ -19,6 +20,8 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.work.WorkInfo;
+import androidx.work.WorkManager;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.snackbar.Snackbar;
@@ -26,15 +29,23 @@ import com.rtometer.R;
 import com.rtometer.calculator.FiscalQuarterPreset;
 import com.rtometer.data.db.AppConfig;
 import com.rtometer.data.db.Quarter;
+import com.rtometer.gps.DebugPrefs;
+import com.rtometer.gps.GpsScheduler;
 import com.rtometer.ui.office.OfficeSetupActivity;
 
+import java.time.Instant;
 import java.time.LocalTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Locale;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
 public class SettingsFragment extends Fragment {
+
+    private static final DateTimeFormatter TIME_FMT = DateTimeFormatter.ofPattern("HH:mm");
 
     private SettingsViewModel viewModel;
 
@@ -47,6 +58,11 @@ public class SettingsFragment extends Fragment {
     private LinearLayout layoutCustomMonth;
     private NumberPicker pickerMonth;
     private Button btnSave;
+
+    private CheckBox cbDebugMode;
+    private LinearLayout layoutDebug;
+    private TextView tvLastGps;
+    private TextView tvMinDistance;
 
     private LocalTime workStart = LocalTime.of(9, 30);
     private LocalTime workEnd = LocalTime.of(18, 0);
@@ -78,6 +94,7 @@ public class SettingsFragment extends Fragment {
                 startActivity(new Intent(requireActivity(), OfficeSetupActivity.class)));
 
         btnSave.setOnClickListener(v -> onSaveTapped());
+        setupDebugSection();
     }
 
     private void bindViews(View view) {
@@ -98,6 +115,11 @@ public class SettingsFragment extends Fragment {
         seekBarTarget.setMax(100);
         seekBarTarget.setProgress(50);
         tvTargetValue.setText("50%");
+
+        cbDebugMode = view.findViewById(R.id.cbDebugMode);
+        layoutDebug = view.findViewById(R.id.layoutDebug);
+        tvLastGps = view.findViewById(R.id.tvLastGps);
+        tvMinDistance = view.findViewById(R.id.tvMinDistance);
     }
 
     private void setupPresetListener() {
@@ -162,6 +184,54 @@ public class SettingsFragment extends Fragment {
                 break;
             default: rgPreset.check(R.id.rbFebStart); break;
         }
+    }
+
+    private void setupDebugSection() {
+        boolean debugOn = DebugPrefs.isDebugMode(requireContext());
+        cbDebugMode.setChecked(debugOn);
+        layoutDebug.setVisibility(debugOn ? View.VISIBLE : View.GONE);
+        if (debugOn) refreshDebugInfo();
+
+        cbDebugMode.setOnCheckedChangeListener((btn, checked) -> {
+            DebugPrefs.setDebugMode(requireContext(), checked);
+            layoutDebug.setVisibility(checked ? View.VISIBLE : View.GONE);
+            if (checked) refreshDebugInfo();
+        });
+
+        requireView().findViewById(R.id.btnCheckGpsNow).setOnClickListener(v -> {
+            GpsScheduler.triggerNow(requireContext());
+            WorkManager.getInstance(requireContext())
+                    .getWorkInfosForUniqueWorkLiveData(GpsScheduler.ONE_TIME_TAG)
+                    .observe(getViewLifecycleOwner(), this::onGpsWorkUpdate);
+        });
+    }
+
+    private void onGpsWorkUpdate(List<WorkInfo> infos) {
+        if (infos == null || infos.isEmpty()) return;
+        WorkInfo.State state = infos.get(0).getState();
+        if (state == WorkInfo.State.SUCCEEDED || state == WorkInfo.State.FAILED) {
+            refreshDebugInfo();
+        }
+    }
+
+    private void refreshDebugInfo() {
+        float lat = DebugPrefs.getLastLat(requireContext());
+        float lng = DebugPrefs.getLastLng(requireContext());
+        float dist = DebugPrefs.getMinDistance(requireContext());
+        long ts = DebugPrefs.getLastCheckMs(requireContext());
+
+        if (Float.isNaN(lat)) {
+            tvLastGps.setText(R.string.debug_last_gps_none);
+            tvMinDistance.setText(R.string.debug_min_distance_na);
+            return;
+        }
+
+        String time = TIME_FMT.format(
+                Instant.ofEpochMilli(ts).atZone(ZoneId.systemDefault()).toLocalTime());
+        tvLastGps.setText(String.format(Locale.US, "Last GPS: %.5f, %.5f  (%s)", lat, lng, time));
+        tvMinDistance.setText(dist >= 0
+                ? String.format(Locale.US, "Min distance to office: %.0f m", dist)
+                : "Min distance: no offices");
     }
 
     private void updateTimeLabels() {

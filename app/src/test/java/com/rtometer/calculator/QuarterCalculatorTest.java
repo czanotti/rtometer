@@ -241,9 +241,27 @@ public class QuarterCalculatorTest {
 
     @Test
     public void daysRemaining_countsFutureWorkingDaysIncludingToday() {
-        // today = Jan 13 (Mon, week 2 start) → remaining = 5 (Jan 13–17)
+        // today = Jan 13 (Mon, week 2 start), unclassified → remaining = 5 (Jan 13–17)
         QuarterStats s = QuarterCalculator.calculate(twoWeekQuarter(), Collections.emptyList(), Collections.emptyList(), LocalDate.of(2025, 1, 13));
         assertEquals(5, s.daysRemaining);
+    }
+
+    @Test
+    public void daysRemaining_todayInOffice_excludesToday() {
+        // today = Jan 13 already classified IN_OFFICE → remaining = 4 (Jan 14–17)
+        Quarter q = twoWeekQuarter();
+        List<AttendanceDay> days = List.of(day(q, LocalDate.of(2025, 1, 13), DayStatus.IN_OFFICE));
+        QuarterStats s = QuarterCalculator.calculate(q, days, Collections.emptyList(), LocalDate.of(2025, 1, 13));
+        assertEquals(4, s.daysRemaining);
+    }
+
+    @Test
+    public void daysRemaining_todayNotInOffice_excludesToday() {
+        // today = Jan 13 already classified NOT_IN_OFFICE → remaining = 4 (Jan 14–17)
+        Quarter q = twoWeekQuarter();
+        List<AttendanceDay> days = List.of(day(q, LocalDate.of(2025, 1, 13), DayStatus.NOT_IN_OFFICE));
+        QuarterStats s = QuarterCalculator.calculate(q, days, Collections.emptyList(), LocalDate.of(2025, 1, 13));
+        assertEquals(4, s.daysRemaining);
     }
 
     @Test
