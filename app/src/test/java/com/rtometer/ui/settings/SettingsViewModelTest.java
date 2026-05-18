@@ -1,9 +1,12 @@
 package com.rtometer.ui.settings;
 
 import android.content.Context;
+import android.util.Log;
 
 import androidx.room.Room;
 import androidx.test.core.app.ApplicationProvider;
+import androidx.work.Configuration;
+import androidx.work.testing.WorkManagerTestInitHelper;
 
 import com.rtometer.calculator.FiscalQuarterPreset;
 import com.rtometer.data.db.AppConfig;
@@ -33,6 +36,8 @@ import static org.junit.Assert.*;
 @Config(sdk = 34)
 public class SettingsViewModelTest {
 
+    private static boolean wmInitialized = false;
+
     private AppDatabase db;
     private AppConfigDao configDao;
     private QuarterDao quarterDao;
@@ -48,7 +53,14 @@ public class SettingsViewModelTest {
         configDao = db.appConfigDao();
         quarterDao = db.quarterDao();
         attendanceDayDao = db.attendanceDayDao();
-        vm = new SettingsViewModel(configDao, quarterDao, db.bankHolidayDao());
+
+        if (!wmInitialized) {
+            WorkManagerTestInitHelper.initializeTestWorkManager(ctx,
+                    new Configuration.Builder().setMinimumLoggingLevel(Log.DEBUG).build());
+            wmInitialized = true;
+        }
+
+        vm = new SettingsViewModel(ctx, configDao, quarterDao, db.bankHolidayDao());
     }
 
     @After

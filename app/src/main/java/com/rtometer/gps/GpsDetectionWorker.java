@@ -54,12 +54,26 @@ public class GpsDetectionWorker extends Worker {
         }
 
         List<Office> offices = officeDao.getAll();
+        double minDistance = Double.MAX_VALUE;
+        long detectedOfficeId = -1;
+
         for (Office office : offices) {
-            if (GeofenceChecker.isWithin(latLng[0], latLng[1], office)) {
-                markInOffice(dayDao, quarterDao, existing, today, office.id);
-                GpsScheduler.cancelToday(context);
-                return Result.success();
+            double dist = GeofenceChecker.distanceMeters(latLng[0], latLng[1],
+                    office.latitude, office.longitude);
+            if (dist < minDistance) {
+                minDistance = dist;
             }
+            if (detectedOfficeId < 0 && dist <= office.radiusMeters) {
+                detectedOfficeId = office.id;
+            }
+        }
+
+        DebugPrefs.saveResult(context, latLng[0], latLng[1],
+                minDistance < Double.MAX_VALUE ? (float) minDistance : -1f);
+
+        if (detectedOfficeId >= 0) {
+            markInOffice(dayDao, quarterDao, existing, today, detectedOfficeId);
+            GpsScheduler.cancelToday(context);
         }
 
         return Result.success();
