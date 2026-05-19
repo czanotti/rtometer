@@ -177,6 +177,47 @@
             android:layout_height="wrap_content"
             android:text="@string/settings_manage_offices" />
 
+        <!-- Debug -->
+        <CheckBox
+            android:id="@+id/cbDebugMode"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="@string/settings_debug_mode" />
+
+        <LinearLayout
+            android:id="@+id/layoutDebug"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingTop="8dp"
+            android:visibility="gone">
+
+            <Button
+                android:id="@+id/btnCheckGpsNow"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/settings_check_gps_now" />
+
+            <TextView
+                android:id="@+id/tvLastGps"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="monospace"
+                android:paddingTop="8dp"
+                android:text="@string/debug_last_gps_none" />
+
+            <TextView
+                android:id="@+id/tvMinDistance"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="monospace"
+                android:paddingTop="4dp"
+                android:text="@string/debug_min_distance_na" />
+
+        </LinearLayout>
+
         <!-- Save -->
         <Button
             android:id="@+id/btnSave"
