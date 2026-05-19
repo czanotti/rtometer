@@ -46,6 +46,10 @@ public class QuarterCalculator {
         int daysNeeded = Math.max(0, daysTarget - daysAttended);
 
         LocalDate rangeStart = today.isBefore(quarter.startDate) ? quarter.startDate : today;
+        DayStatus todayStatus = statusByDate.get(rangeStart);
+        if (todayStatus == DayStatus.IN_OFFICE || todayStatus == DayStatus.NOT_IN_OFFICE) {
+            rangeStart = rangeStart.plusDays(1);
+        }
         int daysRemaining = countWorkingDays(
                 rangeStart, quarter.endDate, bankHolidaySet, statusByDate);
 

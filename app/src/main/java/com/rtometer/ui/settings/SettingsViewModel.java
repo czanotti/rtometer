@@ -1,5 +1,7 @@
 package com.rtometer.ui.settings;
 
+import android.content.Context;
+
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
@@ -10,6 +12,7 @@ import com.rtometer.data.db.AppConfigDao;
 import com.rtometer.data.db.BankHolidayDao;
 import com.rtometer.data.db.Quarter;
 import com.rtometer.data.db.QuarterDao;
+import com.rtometer.gps.GpsScheduler;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -20,6 +23,7 @@ import java.util.concurrent.Executors;
 import javax.inject.Inject;
 
 import dagger.hilt.android.lifecycle.HiltViewModel;
+import dagger.hilt.android.qualifiers.ApplicationContext;
 
 @HiltViewModel
 public class SettingsViewModel extends ViewModel {
@@ -27,14 +31,16 @@ public class SettingsViewModel extends ViewModel {
     private final AppConfigDao configDao;
     private final QuarterDao quarterDao;
     final BankHolidayDao bankHolidayDao;
+    private final Context appContext;
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     final MutableLiveData<AppConfig> config = new MutableLiveData<>();
     final MutableLiveData<Quarter> currentQuarter = new MutableLiveData<>();
 
     @Inject
-    public SettingsViewModel(AppConfigDao configDao, QuarterDao quarterDao,
-                             BankHolidayDao bankHolidayDao) {
+    public SettingsViewModel(@ApplicationContext Context context, AppConfigDao configDao,
+                             QuarterDao quarterDao, BankHolidayDao bankHolidayDao) {
+        this.appContext = context;
         this.configDao = configDao;
         this.quarterDao = quarterDao;
         this.bankHolidayDao = bankHolidayDao;
@@ -70,6 +76,7 @@ public class SettingsViewModel extends ViewModel {
         cfg.customStartMonth = (preset == FiscalQuarterPreset.CUSTOM) ? customMonth : 2;
         configDao.upsert(cfg);
         config.postValue(cfg);
+        GpsScheduler.reschedule(appContext, gps);
     }
 
     public void saveQuarterTarget(long quarterId, float target) {
