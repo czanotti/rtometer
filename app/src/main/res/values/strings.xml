@@ -29,6 +29,7 @@
     <string name="work_end_label">Work day end</string>
     <string name="gps_interval_label">GPS check interval (minutes)</string>
     <string name="minutes_hint">minutes</string>
+    <string name="gps_interval_hint">Phone GPS positions up to 10 mins old are used if available</string>
 
     <!-- Step 4 -->
     <string name="step4_title">Office Location</string>
@@ -81,7 +82,7 @@
     <string name="settings_country_none">None (no bank holidays)</string>
     <string name="settings_save">Save</string>
     <string name="settings_saved">Settings saved</string>
-    <string name="settings_gps_error">Enter a number greater than 0</string>
+    <string name="settings_gps_error">Must be at least 15 minutes</string>
     <string name="settings_reset_title">Reset Quarters?</string>
     <string name="settings_reset_message">This will delete all quarters and attendance history for the selected year and recreate them. This cannot be undone.</string>
     <string name="settings_reset_confirm">Reset</string>

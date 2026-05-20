@@ -4,6 +4,7 @@ import android.app.Application;
 
 import com.rtometer.data.db.AppConfig;
 import com.rtometer.data.db.AppDatabase;
+import com.rtometer.gps.DebugPrefs;
 import com.rtometer.gps.GpsScheduler;
 
 import java.util.concurrent.Executors;
@@ -21,6 +22,9 @@ public class RTOmeterApp extends Application {
             AppConfig cfg = db.appConfigDao().get();
             int interval = cfg != null ? cfg.gpsIntervalMinutes : 120;
             GpsScheduler.schedule(this, interval);
+            if (DebugPrefs.getNextFixMs(this) == 0) {
+                GpsScheduler.triggerNow(this);
+            }
         });
     }
 }

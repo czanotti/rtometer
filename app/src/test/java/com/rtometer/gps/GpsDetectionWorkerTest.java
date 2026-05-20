@@ -1,6 +1,7 @@
 package com.rtometer.gps;
 
 import android.content.Context;
+import android.location.Location;
 import android.util.Log;
 
 import androidx.room.Room;
@@ -32,6 +33,7 @@ import java.util.concurrent.Executors;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(RobolectricTestRunner.class)
@@ -183,6 +185,66 @@ public class GpsDetectionWorkerTest {
         AttendanceDay result = dayDao.getByDate(LocalDate.now().toString());
         assertNotNull(result);
         assertEquals(DayStatus.IN_OFFICE, result.status);
+    }
+
+    // ── pickBestLocation ──────────────────────────────────────────────────────
+
+    private static Location makeLocation(String provider, float accuracyM, long ageMs) {
+        Location loc = new Location(provider);
+        loc.setLatitude(53.3478);
+        loc.setLongitude(-6.2597);
+        loc.setAccuracy(accuracyM);
+        loc.setTime(System.currentTimeMillis() - ageMs);
+        return loc;
+    }
+
+    @Test
+    public void pickBestLocation_nullBoth_returnsNull() {
+        assertNull(LocationUtils.pickBestLocation(null, null));
+    }
+
+    @Test
+    public void pickBestLocation_staleLoc_returnsNull() {
+        Location stale = makeLocation("gps", 10f, 11 * 60 * 1000L); // 11 min old > 10 min TTL
+        assertNull(LocationUtils.pickBestLocation(stale, null));
+    }
+
+    @Test
+    public void pickBestLocation_inaccurateLoc_returnsNull() {
+        Location bad = makeLocation("network", 200f, 1000L); // accuracy 200m > 150m threshold
+        assertNull(LocationUtils.pickBestLocation(null, bad));
+    }
+
+    @Test
+    public void pickBestLocation_freshAndAccurate_returnsIt() {
+        Location fresh = makeLocation("gps", 20f, 30_000L); // 30 s old
+        assertEquals(fresh, LocationUtils.pickBestLocation(fresh, null));
+    }
+
+    @Test
+    public void pickBestLocation_prefersMostAccurate() {
+        Location gps = makeLocation("gps", 30f, 30_000L);
+        Location net = makeLocation("network", 80f, 30_000L);
+        assertEquals(gps, LocationUtils.pickBestLocation(gps, net));
+    }
+
+    @Test
+    public void pickBestLocation_staleGpsButFreshNetwork_returnsNetwork() {
+        Location stale = makeLocation("gps", 10f, 11 * 60 * 1000L); // 11 min old > 10 min TTL
+        Location net = makeLocation("network", 100f, 30_000L);
+        assertEquals(net, LocationUtils.pickBestLocation(stale, net));
+    }
+
+    @Test
+    public void pickBestLocation_withinTtl_accepted() {
+        Location loc = makeLocation("gps", 20f, 9 * 60 * 1000L); // 9 min old < 10 min TTL
+        assertEquals(loc, LocationUtils.pickBestLocation(loc, null));
+    }
+
+    @Test
+    public void pickBestLocation_exceedsTtl_rejected() {
+        Location loc = makeLocation("gps", 20f, 11 * 60 * 1000L); // 11 min old > 10 min TTL
+        assertNull(LocationUtils.pickBestLocation(loc, null));
     }
 
     @Test
