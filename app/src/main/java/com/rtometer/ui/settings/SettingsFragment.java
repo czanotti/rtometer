@@ -61,8 +61,9 @@ public class SettingsFragment extends Fragment {
 
     private CheckBox cbDebugMode;
     private LinearLayout layoutDebug;
-    private TextView tvLastGps;
-    private TextView tvMinDistance;
+    private TextView tvLastRejection;
+    private TextView tvNextFix;
+    private TextView tvFix0, tvFix1, tvFix2;
 
     private LocalTime workStart = LocalTime.of(9, 30);
     private LocalTime workEnd = LocalTime.of(18, 0);
@@ -118,8 +119,11 @@ public class SettingsFragment extends Fragment {
 
         cbDebugMode = view.findViewById(R.id.cbDebugMode);
         layoutDebug = view.findViewById(R.id.layoutDebug);
-        tvLastGps = view.findViewById(R.id.tvLastGps);
-        tvMinDistance = view.findViewById(R.id.tvMinDistance);
+        tvLastRejection = view.findViewById(R.id.tvLastRejection);
+        tvNextFix = view.findViewById(R.id.tvNextFix);
+        tvFix0 = view.findViewById(R.id.tvFix0);
+        tvFix1 = view.findViewById(R.id.tvFix1);
+        tvFix2 = view.findViewById(R.id.tvFix2);
     }
 
     private void setupPresetListener() {
@@ -215,23 +219,39 @@ public class SettingsFragment extends Fragment {
     }
 
     private void refreshDebugInfo() {
-        float lat = DebugPrefs.getLastLat(requireContext());
-        float lng = DebugPrefs.getLastLng(requireContext());
-        float dist = DebugPrefs.getMinDistance(requireContext());
-        long ts = DebugPrefs.getLastCheckMs(requireContext());
-
-        if (Float.isNaN(lat)) {
-            tvLastGps.setText(R.string.debug_last_gps_none);
-            tvMinDistance.setText(R.string.debug_min_distance_na);
-            return;
+        String rejection = DebugPrefs.getLastRejection(requireContext());
+        if (rejection != null) {
+            tvLastRejection.setText("Rejected: " + rejection);
+            tvLastRejection.setVisibility(View.VISIBLE);
+        } else {
+            tvLastRejection.setVisibility(View.GONE);
         }
 
-        String time = TIME_FMT.format(
-                Instant.ofEpochMilli(ts).atZone(ZoneId.systemDefault()).toLocalTime());
-        tvLastGps.setText(String.format(Locale.US, "Last GPS: %.5f, %.5f  (%s)", lat, lng, time));
-        tvMinDistance.setText(dist >= 0
-                ? String.format(Locale.US, "Min distance to office: %.0f m", dist)
-                : "Min distance: no offices");
+        long nextFixMs = DebugPrefs.getNextFixMs(requireContext());
+        if (nextFixMs > 0) {
+            String next = TIME_FMT.format(
+                    Instant.ofEpochMilli(nextFixMs).atZone(ZoneId.systemDefault()).toLocalTime());
+            tvNextFix.setText("Next check: " + next);
+        } else {
+            tvNextFix.setText("Next check: unknown");
+        }
+
+        List<DebugPrefs.FixEntry> fixes = DebugPrefs.getFixes(requireContext());
+        TextView[] rows = {tvFix0, tvFix1, tvFix2};
+        for (int i = 0; i < rows.length; i++) {
+            if (i < fixes.size()) {
+                DebugPrefs.FixEntry f = fixes.get(i);
+                String time = TIME_FMT.format(
+                        Instant.ofEpochMilli(f.timestampMs).atZone(ZoneId.systemDefault()).toLocalTime());
+                String dist = f.distMeters >= 0
+                        ? String.format(Locale.US, "%.0f m", f.distMeters)
+                        : "no offices";
+                rows[i].setText(String.format(Locale.US,
+                        "%s  %.5f, %.5f  dist: %s", time, f.lat, f.lng, dist));
+            } else {
+                rows[i].setText("–");
+            }
+        }
     }
 
     private void updateTimeLabels() {
@@ -252,7 +272,7 @@ public class SettingsFragment extends Fragment {
 
     private void onSaveTapped() {
         String gpsText = etGpsInterval.getText().toString().trim();
-        if (gpsText.isEmpty() || Integer.parseInt(gpsText) <= 0) {
+        if (gpsText.isEmpty() || Integer.parseInt(gpsText) < GpsScheduler.MIN_GPS_INTERVAL_MINUTES) {
             etGpsInterval.setError(getString(R.string.settings_gps_error));
             etGpsInterval.requestFocus();
             return;
