@@ -9,6 +9,7 @@ import androidx.annotation.VisibleForTesting;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
+import com.rtometer.data.db.AppConfig;
 import com.rtometer.data.db.AppDatabase;
 import com.rtometer.data.db.AttendanceDay;
 import com.rtometer.data.db.AttendanceDayDao;
@@ -48,6 +49,11 @@ public class GpsDetectionWorker extends Worker {
             return Result.success();
         }
 
+        AppConfig config = db.appConfigDao().get();
+        int intervalMinutes = config != null ? config.gpsIntervalMinutes : 120;
+        long nextFixMs = System.currentTimeMillis() + intervalMinutes * 60_000L;
+        DebugPrefs.saveNextFixMs(context, nextFixMs);
+
         double[] latLng = resolveLatLng(context);
         if (latLng == null) {
             return Result.success();
@@ -68,8 +74,9 @@ public class GpsDetectionWorker extends Worker {
             }
         }
 
-        DebugPrefs.saveResult(context, latLng[0], latLng[1],
-                minDistance < Double.MAX_VALUE ? (float) minDistance : -1f);
+        DebugPrefs.pushFix(context, latLng[0], latLng[1],
+                minDistance < Double.MAX_VALUE ? (float) minDistance : -1f,
+                nextFixMs);
 
         if (detectedOfficeId >= 0) {
             markInOffice(dayDao, quarterDao, existing, today, detectedOfficeId);
@@ -90,9 +97,12 @@ public class GpsDetectionWorker extends Worker {
         LocationPermissionChecker.setDenied(context, false);
         try {
             LocationManager lm = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
-            Location loc = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+            Location gps = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+            Location network = lm.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+            Location loc = LocationUtils.pickBestLocation(gps, network);
             if (loc == null) {
-                loc = lm.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+                DebugPrefs.saveRejection(context, LocationUtils.describeRejection(gps, network));
+                loc = LocationUtils.requestFreshLocation(lm);
             }
             if (loc == null) {
                 return null;

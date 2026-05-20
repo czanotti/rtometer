@@ -178,8 +178,9 @@ public class OfficeEditFragment extends DialogFragment {
             return;
         }
         LocationManager lm = (LocationManager) requireContext().getSystemService(android.content.Context.LOCATION_SERVICE);
-        Location loc = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-        if (loc == null) loc = lm.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+        Location loc = com.rtometer.gps.LocationUtils.pickBestLocation(
+                lm.getLastKnownLocation(LocationManager.GPS_PROVIDER),
+                lm.getLastKnownLocation(LocationManager.NETWORK_PROVIDER));
         if (loc != null) {
             movePin(loc.getLatitude(), loc.getLongitude());
         } else {
