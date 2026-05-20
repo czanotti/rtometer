@@ -59,6 +59,14 @@
             android:hint="@string/minutes_hint"
             android:inputType="number" />
 
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="4dp"
+            android:text="@string/gps_interval_hint"
+            android:textSize="12sp"
+            android:textColor="?android:attr/textColorSecondary" />
+
         <!-- Attendance Target -->
         <TextView
             android:layout_width="match_parent"
@@ -201,20 +209,40 @@
                 android:text="@string/settings_check_gps_now" />
 
             <TextView
-                android:id="@+id/tvLastGps"
+                android:id="@+id/tvLastRejection"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:fontFamily="monospace"
                 android:paddingTop="8dp"
-                android:text="@string/debug_last_gps_none" />
+                android:textColor="@color/design_default_color_error" />
 
             <TextView
-                android:id="@+id/tvMinDistance"
+                android:id="@+id/tvNextFix"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:fontFamily="monospace"
-                android:paddingTop="4dp"
-                android:text="@string/debug_min_distance_na" />
+                android:paddingTop="8dp" />
+
+            <TextView
+                android:id="@+id/tvFix0"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="monospace"
+                android:paddingTop="8dp" />
+
+            <TextView
+                android:id="@+id/tvFix1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="monospace"
+                android:paddingTop="2dp" />
+
+            <TextView
+                android:id="@+id/tvFix2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="monospace"
+                android:paddingTop="2dp" />
 
         </LinearLayout>
 

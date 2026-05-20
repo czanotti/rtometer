@@ -12,6 +12,8 @@ import java.util.concurrent.TimeUnit;
 
 public class GpsScheduler {
 
+    public static final int MIN_GPS_INTERVAL_MINUTES = 15;
+
     static final String WORK_TAG = "gps_detection";
 
     /** Enqueues GPS polling; skips if already running (safe to call on every app start). */
