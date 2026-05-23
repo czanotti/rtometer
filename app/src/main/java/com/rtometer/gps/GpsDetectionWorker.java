@@ -20,6 +20,7 @@ import com.rtometer.data.db.QuarterDao;
 import com.rtometer.data.model.DayStatus;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 
 public class GpsDetectionWorker extends Worker {
@@ -27,6 +28,10 @@ public class GpsDetectionWorker extends Worker {
     /** Set in tests to bypass real GPS without location permission. */
     @VisibleForTesting
     static volatile double[] testLatLng = null;
+
+    /** Set in tests to override current time for working-hours checks. */
+    @VisibleForTesting
+    static volatile LocalTime testNow = null;
 
     public GpsDetectionWorker(@NonNull Context context, @NonNull WorkerParameters params) {
         super(context, params);
@@ -43,16 +48,24 @@ public class GpsDetectionWorker extends Worker {
 
         String today = LocalDate.now().toString();
 
-        // Exit early if day is already confirmed
-        AttendanceDay existing = dayDao.getByDate(today);
-        if (existing != null && existing.status == DayStatus.IN_OFFICE) {
-            return Result.success();
-        }
-
         AppConfig config = db.appConfigDao().get();
         int intervalMinutes = config != null ? config.gpsIntervalMinutes : 120;
         long nextFixMs = System.currentTimeMillis() + intervalMinutes * 60_000L;
         DebugPrefs.saveNextFixMs(context, nextFixMs);
+
+        AttendanceDay existing = dayDao.getByDate(today);
+        if (existing != null && existing.status != DayStatus.CLEAR) {
+            DebugPrefs.saveRejection(context, "skipped: day is " + existing.status.name());
+            return Result.success();
+        }
+
+        if (config != null) {
+            LocalTime now = testNow != null ? testNow : LocalTime.now();
+            if (now.isBefore(config.workDayStart) || now.isAfter(config.workDayEnd)) {
+                DebugPrefs.saveRejection(context, "skipped: outside working hours (" + now + ")");
+                return Result.success();
+            }
+        }
 
         double[] latLng = resolveLatLng(context);
         if (latLng == null) {
@@ -80,7 +93,6 @@ public class GpsDetectionWorker extends Worker {
 
         if (detectedOfficeId >= 0) {
             markInOffice(dayDao, quarterDao, existing, today, detectedOfficeId);
-            GpsScheduler.cancelToday(context);
         }
 
         return Result.success();

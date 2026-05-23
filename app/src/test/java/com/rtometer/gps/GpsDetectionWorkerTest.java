@@ -29,6 +29,7 @@ import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.concurrent.Executors;
 
 import static org.junit.Assert.assertEquals;
@@ -77,6 +78,7 @@ public class GpsDetectionWorkerTest {
     @After
     public void teardown() {
         GpsDetectionWorker.testLatLng = null;
+        GpsDetectionWorker.testNow = null;
         AppDatabase.setTestInstance(null);
         db.close();
     }
@@ -113,13 +115,21 @@ public class GpsDetectionWorkerTest {
                 Executors.newSingleThreadExecutor()).build();
     }
 
+    private void insertConfig(LocalTime start, LocalTime end) {
+        com.rtometer.data.db.AppConfig config = new com.rtometer.data.db.AppConfig();
+        config.id = 1;
+        config.workDayStart = start;
+        config.workDayEnd = end;
+        db.appConfigDao().upsert(config);
+    }
+
     // ── tests ─────────────────────────────────────────────────────────────────
 
     @Test
     public void withinOfficeRadius_marksInOffice() {
         insertOffice(HQ_LAT, HQ_LNG, 200);
         long quarterId = insertQuarterContainingToday();
-        insertDayForToday(quarterId, DayStatus.NOT_IN_OFFICE);
+        insertDayForToday(quarterId, DayStatus.CLEAR);
 
         GpsDetectionWorker.testLatLng = new double[]{HQ_LAT, HQ_LNG}; // same coords → distance = 0
 
@@ -135,7 +145,7 @@ public class GpsDetectionWorkerTest {
     public void outsideAllOffices_noStatusChange() {
         insertOffice(HQ_LAT, HQ_LNG, 200);
         long quarterId = insertQuarterContainingToday();
-        insertDayForToday(quarterId, DayStatus.NOT_IN_OFFICE);
+        insertDayForToday(quarterId, DayStatus.CLEAR);
 
         // ~1 km north of HQ
         GpsDetectionWorker.testLatLng = new double[]{51.5164, HQ_LNG};
@@ -144,7 +154,7 @@ public class GpsDetectionWorkerTest {
 
         AttendanceDay result = dayDao.getByDate(LocalDate.now().toString());
         assertNotNull(result);
-        assertEquals(DayStatus.NOT_IN_OFFICE, result.status);
+        assertEquals(DayStatus.CLEAR, result.status);
     }
 
     @Test
@@ -162,14 +172,14 @@ public class GpsDetectionWorkerTest {
     @Test
     public void noOfficesRegistered_noStatusChange() {
         long quarterId = insertQuarterContainingToday();
-        insertDayForToday(quarterId, DayStatus.NOT_IN_OFFICE);
+        insertDayForToday(quarterId, DayStatus.CLEAR);
 
         GpsDetectionWorker.testLatLng = new double[]{HQ_LAT, HQ_LNG};
 
         buildWorker().doWork();
 
         AttendanceDay result = dayDao.getByDate(LocalDate.now().toString());
-        assertEquals(DayStatus.NOT_IN_OFFICE, result.status);
+        assertEquals(DayStatus.CLEAR, result.status);
     }
 
     @Test
@@ -178,6 +188,60 @@ public class GpsDetectionWorkerTest {
         insertQuarterContainingToday();
         // No AttendanceDay row for today
 
+        GpsDetectionWorker.testLatLng = new double[]{HQ_LAT, HQ_LNG};
+
+        buildWorker().doWork();
+
+        AttendanceDay result = dayDao.getByDate(LocalDate.now().toString());
+        assertNotNull(result);
+        assertEquals(DayStatus.IN_OFFICE, result.status);
+    }
+
+    @Test
+    public void nonClearStatus_skipsGps() {
+        long quarterId = insertQuarterContainingToday();
+        String today = LocalDate.now().toString();
+        for (DayStatus s : new DayStatus[]{
+                DayStatus.IN_OFFICE, DayStatus.NOT_IN_OFFICE,
+                DayStatus.SICK, DayStatus.HOLIDAY, DayStatus.BANK_HOLIDAY}) {
+            dayDao.deleteByDate(today);
+            insertDayForToday(quarterId, s);
+            GpsDetectionWorker.testLatLng = null; // would NPE if GPS logic runs
+
+            ListenableWorker.Result result = buildWorker().doWork();
+            assertEquals(ListenableWorker.Result.success(), result);
+
+            AttendanceDay day = dayDao.getByDate(today);
+            assertNotNull(day);
+            assertEquals(s, day.status);
+        }
+    }
+
+    @Test
+    public void outsideWorkingHours_skipsLocation() {
+        insertOffice(HQ_LAT, HQ_LNG, 200);
+        long quarterId = insertQuarterContainingToday();
+        insertDayForToday(quarterId, DayStatus.CLEAR);
+        insertConfig(LocalTime.of(9, 0), LocalTime.of(18, 0));
+
+        GpsDetectionWorker.testNow = LocalTime.of(20, 0); // after end
+        GpsDetectionWorker.testLatLng = new double[]{HQ_LAT, HQ_LNG}; // would mark IN_OFFICE if GPS ran
+
+        buildWorker().doWork();
+
+        AttendanceDay result = dayDao.getByDate(LocalDate.now().toString());
+        assertNotNull(result);
+        assertEquals(DayStatus.CLEAR, result.status);
+    }
+
+    @Test
+    public void withinWorkingHours_runsLocation() {
+        insertOffice(HQ_LAT, HQ_LNG, 200);
+        long quarterId = insertQuarterContainingToday();
+        insertDayForToday(quarterId, DayStatus.CLEAR);
+        insertConfig(LocalTime.of(9, 0), LocalTime.of(18, 0));
+
+        GpsDetectionWorker.testNow = LocalTime.of(10, 0); // within hours
         GpsDetectionWorker.testLatLng = new double[]{HQ_LAT, HQ_LNG};
 
         buildWorker().doWork();
@@ -251,7 +315,7 @@ public class GpsDetectionWorkerTest {
     public void permissionDenied_setsDeniedFlagAndLeavesDayUnchanged() {
         insertOffice(HQ_LAT, HQ_LNG, 200);
         long quarterId = insertQuarterContainingToday();
-        insertDayForToday(quarterId, DayStatus.NOT_IN_OFFICE);
+        insertDayForToday(quarterId, DayStatus.CLEAR);
 
         // testLatLng = null → falls through to real permission check;
         // Robolectric grants no permissions by default so hasBackgroundLocation() = false
@@ -263,6 +327,6 @@ public class GpsDetectionWorkerTest {
         assertTrue(LocationPermissionChecker.isDenied(context));
         AttendanceDay day = dayDao.getByDate(LocalDate.now().toString());
         assertNotNull(day);
-        assertEquals(DayStatus.NOT_IN_OFFICE, day.status);
+        assertEquals(DayStatus.CLEAR, day.status);
     }
 }
