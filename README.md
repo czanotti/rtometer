@@ -14,7 +14,7 @@
 
 RTOmeter is a personal project born out of [Matt Pocock's agentic development workshop](https://youtu.be/-QFHIoCo-Ko?si=Pdf4OCbRT3AIyRic). The entire app was built through iterative AI-assisted development — each feature designed as a vertical slice, implemented via Red and Green TDD, and shipped through a structured agentic workflow — rather than writing code manually.
 
-The practical motivation: my employer tracks RTO compliance by quarter, and I was keeping track manually every month by hand. RTOmeter automates that entirely, with my Office pre-configured as the default GPS geofence.
+The practical motivation: an experiment in agentic development while automating my RTO tracking — with my office pre-configured as the default GPS geofence.
 
 **This app is intended for my own personal use.** It is open source so anyone in a similar situation can fork it, swap in their own office location, and adapt the settings to their company's policy.
 
