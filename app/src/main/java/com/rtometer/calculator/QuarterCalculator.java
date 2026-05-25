@@ -9,6 +9,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -66,9 +67,11 @@ public class QuarterCalculator {
 
         List<int[]> burndownSeries = buildBurndownSeries(quarter, statusByDate, bankHolidaySet, today);
         List<int[]> monthBoundaries = buildMonthBoundaries(quarter, statusByDate, bankHolidaySet);
+        List<MonthStats> monthBreakdown = buildMonthBreakdown(quarter, statusByDate, bankHolidaySet, today);
 
         return new QuarterStats(totalWorkingDays, daysAttended, daysNotInOffice, percentage,
-                daysTarget, daysNeeded, daysRemaining, paceStatus, burndownSeries, monthBoundaries);
+                daysTarget, daysNeeded, daysRemaining, paceStatus, burndownSeries,
+                monthBoundaries, monthBreakdown);
     }
 
     private static List<int[]> buildBurndownSeries(
@@ -119,6 +122,47 @@ public class QuarterCalculator {
             d = d.plusDays(1);
         }
         return boundaries;
+    }
+
+    private static List<MonthStats> buildMonthBreakdown(
+            Quarter quarter,
+            Map<LocalDate, DayStatus> statusByDate,
+            Set<LocalDate> bankHolidays,
+            LocalDate today) {
+        // Accumulate per-month working-day and attendance counts.
+        // Key: first-of-month LocalDate (handles year boundaries correctly).
+        Map<LocalDate, int[]> monthData = new LinkedHashMap<>(); // firstOfMonth → [workingDays, daysAttended]
+
+        LocalDate d = quarter.startDate;
+        while (!d.isAfter(quarter.endDate)) {
+            LocalDate firstOfMonth = d.withDayOfMonth(1);
+            monthData.putIfAbsent(firstOfMonth, new int[]{0, 0});
+
+            if (isWeekday(d) && !bankHolidays.contains(d)) {
+                DayStatus status = statusByDate.get(d);
+                if (status != DayStatus.BANK_HOLIDAY
+                        && status != DayStatus.SICK
+                        && status != DayStatus.HOLIDAY) {
+                    monthData.get(firstOfMonth)[0]++; // workingDays
+                    if (status == DayStatus.IN_OFFICE) {
+                        monthData.get(firstOfMonth)[1]++; // daysAttended
+                    }
+                }
+            }
+            d = d.plusDays(1);
+        }
+
+        List<MonthStats> result = new ArrayList<>();
+        for (Map.Entry<LocalDate, int[]> entry : monthData.entrySet()) {
+            LocalDate firstOfMonth = entry.getKey();
+            int[] data = entry.getValue();
+            int workingDays = data[0];
+            boolean isFuture = firstOfMonth.isAfter(today);
+            int attended = isFuture ? 0 : data[1];
+            float pct = (!isFuture && workingDays > 0) ? (float) attended / workingDays : 0f;
+            result.add(new MonthStats(firstOfMonth.getMonthValue(), workingDays, attended, pct, isFuture));
+        }
+        return result;
     }
 
     private static int countWorkingDays(
