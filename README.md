@@ -38,9 +38,9 @@ The practical motivation: an experiment in agentic development while automating 
 
 **Calendar view** — month-by-month breakdown of the current quarter with colour-coded day statuses. Tap any day to set it manually to *In Office*, *Not in Office*, *Sick*, or *Holiday*.
 
-**GPS geofencing** — set your office location and a geofence radius; WorkManager polls in the background and marks you in-office automatically when you arrive during working hours. Pre-configured for the **Workday Dublin Office**. Falls back gracefully to manual entry if location permission is not granted.
+**GPS geofencing** — set your office location and a geofence radius; WorkManager polls in the background and marks you in-office automatically when you arrive during working hours. Pre-configured for **my company's Dublin office**. Falls back gracefully to manual entry if location permission is not granted.
 
-**Settings** — configure your attendance target (%), working hours, GPS check interval, and fiscal quarter. The Workday Dublin default uses a **50 % quarterly target**.
+**Settings** — configure your attendance target (%), working hours, GPS check interval, and fiscal quarter. My company's default uses a **50 % quarterly target**.
 
 **Quarterly history** — archive of past quarters with summary statistics so you can look back across the year.
 
@@ -50,11 +50,11 @@ The practical motivation: an experiment in agentic development while automating 
 
 ---
 
-## Default configuration (Workday Dublin)
+## Default configuration
 
 | Setting | Value |
 |---|---|
-| Office location | Workday Dublin |
+| Office location | My company's Dublin office |
 | Attendance target | 50 % per quarter |
 | Working hours | 09:30 – 18:00 |
 | GPS check interval | 120 minutes |
