@@ -81,6 +81,8 @@ public class GpsDetectionWorkerTest {
         GpsDetectionWorker.testLatLng = null;
         GpsDetectionWorker.testNow = null;
         GpsDetectionWorker.testToday = null;
+        GpsDetectionWorker.testSimulateStalecache = false;
+        GpsDetectionWorker.testFreshLatLng = null;
         AppDatabase.setTestInstance(null);
         db.close();
     }
@@ -389,5 +391,57 @@ public class GpsDetectionWorkerTest {
         AttendanceDay day = dayDao.getByDate(LocalDate.now().toString());
         assertNotNull(day);
         assertEquals(DayStatus.CLEAR, day.status);
+    }
+
+    // ── stale-cache / fresh-fix fallback ─────────────────────────────────────
+
+    /**
+     * When the cached fix is stale and requestFreshLocation() succeeds,
+     * the fresh coordinates are used for the geofence check and attendance is written.
+     */
+    @Test
+    public void staleCacheFreshFixSucceeds_writesAttendance() {
+        insertOffice(HQ_LAT, HQ_LNG, 200);
+        long quarterId = insertQuarterContainingToday();
+        insertDayForToday(quarterId, DayStatus.CLEAR);
+
+        // Simulate: cache was stale (pickBestLocation returned null),
+        // but requestFreshLocation() returned coordinates inside the office.
+        GpsDetectionWorker.testSimulateStalecache = true;
+        GpsDetectionWorker.testFreshLatLng = new double[]{HQ_LAT, HQ_LNG};
+
+        ListenableWorker.Result result = buildWorker().doWork();
+
+        assertEquals(ListenableWorker.Result.success(), result);
+        AttendanceDay updated = dayDao.getByDate(LocalDate.now().toString());
+        assertNotNull(updated);
+        assertEquals(DayStatus.IN_OFFICE, updated.status);
+        // No stale-cache rejection should remain (pushFix clears it)
+        assertNull(DebugPrefs.getLastRejection(context));
+    }
+
+    /**
+     * When the cached fix is stale and requestFreshLocation() also times out / fails,
+     * saveRejection is called with a distinct message and no attendance is written.
+     */
+    @Test
+    public void staleCacheFreshFixFails_savesDistinctRejection() {
+        insertOffice(HQ_LAT, HQ_LNG, 200);
+        long quarterId = insertQuarterContainingToday();
+        insertDayForToday(quarterId, DayStatus.CLEAR);
+
+        // Simulate: cache was stale and fresh fix also failed (returns null).
+        GpsDetectionWorker.testSimulateStalecache = true;
+        GpsDetectionWorker.testFreshLatLng = null; // null → fresh fix failed
+
+        ListenableWorker.Result result = buildWorker().doWork();
+
+        assertEquals(ListenableWorker.Result.success(), result);
+        // Attendance unchanged
+        AttendanceDay day = dayDao.getByDate(LocalDate.now().toString());
+        assertNotNull(day);
+        assertEquals(DayStatus.CLEAR, day.status);
+        // Rejection reason must clearly state both failures
+        assertEquals("skipped: stale cache, fresh fix failed", DebugPrefs.getLastRejection(context));
     }
 }
