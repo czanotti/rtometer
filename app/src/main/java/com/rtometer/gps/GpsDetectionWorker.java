@@ -19,6 +19,7 @@ import com.rtometer.data.db.Quarter;
 import com.rtometer.data.db.QuarterDao;
 import com.rtometer.data.model.DayStatus;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
@@ -33,6 +34,10 @@ public class GpsDetectionWorker extends Worker {
     @VisibleForTesting
     static volatile LocalTime testNow = null;
 
+    /** Set in tests to override today's date (e.g. to simulate weekends). */
+    @VisibleForTesting
+    static volatile LocalDate testToday = null;
+
     public GpsDetectionWorker(@NonNull Context context, @NonNull WorkerParameters params) {
         super(context, params);
     }
@@ -46,14 +51,21 @@ public class GpsDetectionWorker extends Worker {
         OfficeDao officeDao = db.officeDao();
         QuarterDao quarterDao = db.quarterDao();
 
-        String today = LocalDate.now().toString();
+        LocalDate today = testToday != null ? testToday : LocalDate.now();
+        String todayStr = today.toString();
 
         AppConfig config = db.appConfigDao().get();
         int intervalMinutes = config != null ? config.gpsIntervalMinutes : 120;
         long nextFixMs = System.currentTimeMillis() + intervalMinutes * 60_000L;
         DebugPrefs.saveNextFixMs(context, nextFixMs);
 
-        AttendanceDay existing = dayDao.getByDate(today);
+        DayOfWeek dow = today.getDayOfWeek();
+        if (dow == DayOfWeek.SATURDAY || dow == DayOfWeek.SUNDAY) {
+            DebugPrefs.saveRejection(context, "skipped: weekend (" + dow.name().toLowerCase() + ")");
+            return Result.success();
+        }
+
+        AttendanceDay existing = dayDao.getByDate(todayStr);
         if (existing != null && existing.status != DayStatus.CLEAR) {
             DebugPrefs.saveRejection(context, "skipped: day is " + existing.status.name());
             return Result.success();
@@ -92,7 +104,7 @@ public class GpsDetectionWorker extends Worker {
                 nextFixMs);
 
         if (detectedOfficeId >= 0) {
-            markInOffice(dayDao, quarterDao, existing, today, detectedOfficeId);
+            markInOffice(dayDao, quarterDao, existing, todayStr, detectedOfficeId);
         }
 
         return Result.success();
