@@ -414,4 +414,88 @@ public class QuarterCalculatorTest {
         QuarterStats s = QuarterCalculator.calculate(twoWeekQuarter(), Collections.emptyList(), Collections.emptyList(), LocalDate.of(2025, 1, 6));
         assertEquals(5, s.daysTarget);
     }
+
+    // --- Monthly breakdown tests ---
+
+    @Test
+    public void monthBreakdown_todayInFirstMonth_laterMonthsAreFuture() {
+        // May-Jul quarter, today = May 26 → May is present, June & July are future
+        Quarter q = mayJulQuarter();
+        QuarterStats s = QuarterCalculator.calculate(q, Collections.emptyList(), Collections.emptyList(),
+                LocalDate.of(2026, 5, 26));
+        assertEquals(3, s.monthBreakdown.size());
+        assertEquals(5,  s.monthBreakdown.get(0).month);
+        assertEquals(false, s.monthBreakdown.get(0).isFuture);
+        assertEquals(6,  s.monthBreakdown.get(1).month);
+        assertEquals(true, s.monthBreakdown.get(1).isFuture);
+        assertEquals(7,  s.monthBreakdown.get(2).month);
+        assertEquals(true, s.monthBreakdown.get(2).isFuture);
+    }
+
+    @Test
+    public void monthBreakdown_todayInMiddleMonth_onlyLastMonthIsFuture() {
+        // May-Jul quarter, today = Jun 15 → May & June are present, July is future
+        Quarter q = mayJulQuarter();
+        QuarterStats s = QuarterCalculator.calculate(q, Collections.emptyList(), Collections.emptyList(),
+                LocalDate.of(2026, 6, 15));
+        assertEquals(3, s.monthBreakdown.size());
+        assertEquals(false, s.monthBreakdown.get(0).isFuture);  // May
+        assertEquals(false, s.monthBreakdown.get(1).isFuture);  // June
+        assertEquals(true,  s.monthBreakdown.get(2).isFuture);  // July
+    }
+
+    @Test
+    public void monthBreakdown_todayInLastMonth_noFutureMonths() {
+        // May-Jul quarter, today = Jul 15 → all months are present
+        Quarter q = mayJulQuarter();
+        QuarterStats s = QuarterCalculator.calculate(q, Collections.emptyList(), Collections.emptyList(),
+                LocalDate.of(2026, 7, 15));
+        assertEquals(3, s.monthBreakdown.size());
+        assertEquals(false, s.monthBreakdown.get(0).isFuture);  // May
+        assertEquals(false, s.monthBreakdown.get(1).isFuture);  // June
+        assertEquals(false, s.monthBreakdown.get(2).isFuture);  // July
+    }
+
+    @Test
+    public void monthBreakdown_workingDayCounts_matchPerMonthTotals() {
+        // May-Jul 2026: May=21, Jun=22, Jul=23 working days (no bank holidays)
+        Quarter q = mayJulQuarter();
+        QuarterStats s = QuarterCalculator.calculate(q, Collections.emptyList(), Collections.emptyList(),
+                LocalDate.of(2026, 5, 1));
+        assertEquals(21, s.monthBreakdown.get(0).workingDays);  // May
+        assertEquals(22, s.monthBreakdown.get(1).workingDays);  // June
+        assertEquals(23, s.monthBreakdown.get(2).workingDays);  // July
+    }
+
+    @Test
+    public void monthBreakdown_daysAttended_countedPerMonth() {
+        // 3 IN_OFFICE days in May, 2 in June → monthBreakdown reflects per-month counts
+        Quarter q = mayJulQuarter();
+        List<AttendanceDay> days = List.of(
+                day(q, LocalDate.of(2026, 5, 4), DayStatus.IN_OFFICE),
+                day(q, LocalDate.of(2026, 5, 5), DayStatus.IN_OFFICE),
+                day(q, LocalDate.of(2026, 5, 6), DayStatus.IN_OFFICE),
+                day(q, LocalDate.of(2026, 6, 1), DayStatus.IN_OFFICE),
+                day(q, LocalDate.of(2026, 6, 2), DayStatus.IN_OFFICE)
+        );
+        QuarterStats s = QuarterCalculator.calculate(q, days, Collections.emptyList(),
+                LocalDate.of(2026, 7, 15));
+        assertEquals(3, s.monthBreakdown.get(0).daysAttended);  // May
+        assertEquals(2, s.monthBreakdown.get(1).daysAttended);  // June
+        assertEquals(0, s.monthBreakdown.get(2).daysAttended);  // July
+    }
+
+    @Test
+    public void monthBreakdown_futureMonthHasZeroAttendance() {
+        // today = May 1 (in May) → June and July are future, daysAttended must be 0
+        Quarter q = mayJulQuarter();
+        // pre-mark future days — they should be ignored for future months
+        List<AttendanceDay> days = List.of(
+                day(q, LocalDate.of(2026, 6, 1), DayStatus.IN_OFFICE)
+        );
+        QuarterStats s = QuarterCalculator.calculate(q, days, Collections.emptyList(),
+                LocalDate.of(2026, 5, 1));
+        assertEquals(0, s.monthBreakdown.get(1).daysAttended);  // June is future → 0
+        assertEquals(true, s.monthBreakdown.get(1).isFuture);
+    }
 }

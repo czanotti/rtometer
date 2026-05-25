@@ -48,7 +48,7 @@ public class HistoryAdapterClickTest {
 
         QuarterStats stats = new QuarterStats(
                 65, 30, 35, 0.46f, 33, 3, 0,
-                PaceStatus.RED, Collections.emptyList(), Collections.emptyList());
+                PaceStatus.RED, Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
         PastQuarterEntry entry = new PastQuarterEntry(q, stats);
 
         AtomicReference<PastQuarterEntry> captured = new AtomicReference<>();
@@ -84,7 +84,7 @@ public class HistoryAdapterClickTest {
 
         QuarterStats stats = new QuarterStats(
                 65, 30, 35, 0.46f, 33, 3, 0,
-                PaceStatus.GREEN, Collections.emptyList(), Collections.emptyList());
+                PaceStatus.GREEN, Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
         HistoryAdapter adapter = new HistoryAdapter();
         adapter.setEntries(List.of(new PastQuarterEntry(q, stats)));
 
