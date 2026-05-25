@@ -44,5 +44,5 @@
 
 ### Open
 
-- [ ] RTO-40: Skip GPS fix on weekend days
+- [x] RTO-40: Skip GPS fix on weekend days — inject testToday; early-return on SATURDAY/SUNDAY before status/hours checks; two new unit tests
 - [ ] RTO-41: Stale cached fix causes silent skip instead of requesting a fresh location
