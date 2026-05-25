@@ -38,6 +38,20 @@ public class GpsDetectionWorker extends Worker {
     @VisibleForTesting
     static volatile LocalDate testToday = null;
 
+    /**
+     * Set true in tests to simulate a stale-cache scenario (skips real LocationManager).
+     * When true, {@link #testFreshLatLng} controls what requestFreshLocation() "returns".
+     */
+    @VisibleForTesting
+    static volatile boolean testSimulateStalecache = false;
+
+    /**
+     * Used with {@link #testSimulateStalecache}=true: the coordinates returned by the simulated
+     * fresh fix, or {@code null} to simulate a failed/timed-out fresh fix.
+     */
+    @VisibleForTesting
+    static volatile double[] testFreshLatLng = null;
+
     public GpsDetectionWorker(@NonNull Context context, @NonNull WorkerParameters params) {
         super(context, params);
     }
@@ -114,6 +128,16 @@ public class GpsDetectionWorker extends Worker {
         if (testLatLng != null) {
             return testLatLng;
         }
+
+        // Test hook: simulate stale-cache path without a real LocationManager.
+        if (testSimulateStalecache) {
+            if (testFreshLatLng == null) {
+                DebugPrefs.saveRejection(context, "skipped: stale cache, fresh fix failed");
+                return null;
+            }
+            return testFreshLatLng;
+        }
+
         if (!LocationPermissionChecker.hasBackgroundLocation(context)) {
             LocationPermissionChecker.setDenied(context, true);
             return null;
@@ -125,11 +149,15 @@ public class GpsDetectionWorker extends Worker {
             Location network = lm.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
             Location loc = LocationUtils.pickBestLocation(gps, network);
             if (loc == null) {
-                DebugPrefs.saveRejection(context, LocationUtils.describeRejection(gps, network));
+                // Cache stale or missing — attempt a fresh fix.
                 loc = LocationUtils.requestFreshLocation(lm);
-            }
-            if (loc == null) {
-                return null;
+                if (loc == null) {
+                    // Fresh fix also failed; record a distinct reason so the debug panel
+                    // does not show the stale-cache description as the final outcome.
+                    DebugPrefs.saveRejection(context, "skipped: stale cache, fresh fix failed");
+                    return null;
+                }
+                // Fresh fix succeeded — pushFix (called below) will clear the rejection.
             }
             return new double[]{loc.getLatitude(), loc.getLongitude()};
         } catch (SecurityException e) {
