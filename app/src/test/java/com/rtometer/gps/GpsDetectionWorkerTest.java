@@ -28,6 +28,7 @@ import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.concurrent.Executors;
@@ -79,6 +80,7 @@ public class GpsDetectionWorkerTest {
     public void teardown() {
         GpsDetectionWorker.testLatLng = null;
         GpsDetectionWorker.testNow = null;
+        GpsDetectionWorker.testToday = null;
         AppDatabase.setTestInstance(null);
         db.close();
     }
@@ -121,6 +123,29 @@ public class GpsDetectionWorkerTest {
         config.workDayStart = start;
         config.workDayEnd = end;
         db.appConfigDao().upsert(config);
+    }
+
+    /** Returns the nearest date with the given day-of-week (today or later). */
+    private static LocalDate nextOrSame(DayOfWeek dow) {
+        LocalDate d = LocalDate.now();
+        while (d.getDayOfWeek() != dow) d = d.plusDays(1);
+        return d;
+    }
+
+    private long insertQuarterContaining(LocalDate date) {
+        Quarter q = new Quarter();
+        q.quarterNumber = 1;
+        q.startDate = date.minusMonths(1);
+        q.endDate = date.plusMonths(2);
+        return quarterDao.insert(q);
+    }
+
+    private long insertDayFor(LocalDate date, long quarterId, DayStatus status) {
+        AttendanceDay d = new AttendanceDay();
+        d.date = date;
+        d.quarterId = quarterId;
+        d.status = status;
+        return dayDao.insert(d);
     }
 
     // ── tests ─────────────────────────────────────────────────────────────────
@@ -249,6 +274,42 @@ public class GpsDetectionWorkerTest {
         AttendanceDay result = dayDao.getByDate(LocalDate.now().toString());
         assertNotNull(result);
         assertEquals(DayStatus.IN_OFFICE, result.status);
+    }
+
+    @Test
+    public void onSaturday_skipsGpsAndLeavesStatusUnchanged() {
+        insertOffice(HQ_LAT, HQ_LNG, 200);
+
+        LocalDate saturday = nextOrSame(DayOfWeek.SATURDAY);
+        GpsDetectionWorker.testToday = saturday;
+        GpsDetectionWorker.testLatLng = new double[]{HQ_LAT, HQ_LNG}; // would mark IN_OFFICE if GPS ran
+
+        long quarterId = insertQuarterContaining(saturday);
+        insertDayFor(saturday, quarterId, DayStatus.CLEAR);
+
+        buildWorker().doWork();
+
+        AttendanceDay result = dayDao.getByDate(saturday.toString());
+        assertNotNull(result);
+        assertEquals(DayStatus.CLEAR, result.status);
+    }
+
+    @Test
+    public void onSunday_skipsGpsAndLeavesStatusUnchanged() {
+        insertOffice(HQ_LAT, HQ_LNG, 200);
+
+        LocalDate sunday = nextOrSame(DayOfWeek.SUNDAY);
+        GpsDetectionWorker.testToday = sunday;
+        GpsDetectionWorker.testLatLng = new double[]{HQ_LAT, HQ_LNG};
+
+        long quarterId = insertQuarterContaining(sunday);
+        insertDayFor(sunday, quarterId, DayStatus.CLEAR);
+
+        buildWorker().doWork();
+
+        AttendanceDay result = dayDao.getByDate(sunday.toString());
+        assertNotNull(result);
+        assertEquals(DayStatus.CLEAR, result.status);
     }
 
     // ── pickBestLocation ──────────────────────────────────────────────────────

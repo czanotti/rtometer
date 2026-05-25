@@ -1,14 +1,14 @@
-## RTOmeter — Ralph Progress Log
+## RTOmeter — Progress Log
 
 ### Completed
 
-- [x] RTO-1: PRD — RTOmeter (ai/prds/rtometer.md)
+- [x] RTO-1: PRD — RTOmeter
 - [x] RTO-2: Project scaffold — Hilt + Room + WorkManager + MVVM base + GitHub Actions CI
 - [x] RTO-3: Data model — Quarter, Office, AttendanceDay, AppConfig (Room entities + DAOs)
 - [x] RTO-4: QuarterCalculatorModule — working days, percentage, pace logic
-- [x] RTO-5: Fiscal quarter presets + custom config (FiscalQuarterPreset enum, FiscalQuarterFactory, tests)
+- [x] RTO-5: Fiscal quarter presets + custom config
 - [x] RTO-6: Bank holiday presets (IT, GB, US, DE, FR) + manual add/remove
-- [x] RTO-7: Onboarding wizard (4 screens: quarter → target → hours → office)
+- [x] RTO-7: Onboarding wizard (quarter → target → hours → office → holidays → pre-load)
 - [x] RTO-8: GpsDetectionModule — WorkManager periodic task + geofence check
 - [x] RTO-9: DashboardModule — percentage, pace indicator, summary stats
 - [x] RTO-10: CalendarModule — quarter calendar view + day status tap/edit
@@ -16,22 +16,33 @@
 - [x] RTO-12: HistoryModule — past quarters archive + summary stats
 - [x] RTO-13: SettingsModule — edit all app config
 - [x] RTO-14: Location permission handling + degraded-mode banner
-- [x] RTO-15: (skipped — absorbed into earlier tickets)
+- [x] RTO-15: Unit tests — Calculator, Presets, GPS detection, Repository
 - [x] RTO-16: README + CONTRIBUTING.md
-- [x] RTO-17: Fix SQLite resource leaks, CloseGuard warnings, DB migration 3→4
+- [x] RTO-17: Fix Room warning — add index on attendance_days.detectedOfficeId
 - [x] RTO-18: Fix launch crash, navigation & settings save bugs
 - [x] RTO-19: Add Settings tab to bottom navigation bar
-- [x] RTO-20: Calendar bulk status assignment + Clear classification + future date selection
-- [x] RTO-21: Fix working-days denominator — exclude only bank holidays; add unit tests
+- [x] RTO-20: Calendar bulk status assignment
+- [x] RTO-21: Fix working-days denominator — exclude only bank holidays, not sick/holiday days
+- [x] RTO-22: Manual override on weekend days in calendar (single and bulk mode)
 - [x] RTO-23: Exclude database from Android cloud backup
-- [x] RTO-25: Apply FLAG_SECURE to all activities via SecureActivity base class
+- [x] RTO-24: Encrypt Room database with SQLCipher
+- [x] RTO-25: Apply FLAG_SECURE to all activities to prevent screenshots and Recents leaks
 - [x] RTO-26: Treat CLEAR days as out-of-office — exclude from daysAttended
-- [x] RTO-28: Simplify onboarding — remove steps 5 & 6 (holidays, preload); fix default values
+- [x] RTO-27: Add burndown chart to dashboard with month checkpoints
+- [x] RTO-28: Set correct app defaults and simplify quarter/bank-holiday model
 - [x] RTO-29: Add app logo images
 - [x] RTO-30: Always show labels on bottom navigation bar
+- [x] RTO-31: Fix office add/edit dialog and add field labels
+- [x] RTO-32: Rewrite README with logo, full feature docs, and sideload guide
+- [x] RTO-33: Edit attendance days in past quarters from History tab
+- [x] RTO-34: Exclude sick and personal-holiday days from attendance percentage denominator
+- [x] RTO-35: Pre-marked sick and holiday days reduce "Days remaining" on dashboard
+- [x] RTO-36: Calendar day text unreadable in dark mode on coloured cells
+- [x] RTO-37: Fix background GPS detection and dashboard reactivity
+- [x] RTO-38: Fix background GPS location accuracy and improve debug visibility
+- [x] RTO-39: Broaden GPS skip logic and add working-hours gate
 
 ### Open
 
-- [ ] RTO-22: Manual override on weekend days in calendar (single and bulk mode)
-- [ ] RTO-24: Encrypt Room database with SQLCipher (no migration needed — app not yet released; drop and recreate DB)
-- [ ] RTO-27: Add burndown chart to dashboard with month checkpoints
+- [x] RTO-40: Skip GPS fix on weekend days — inject testToday; early-return on SATURDAY/SUNDAY before status/hours checks; two new unit tests
+- [ ] RTO-41: Stale cached fix causes silent skip instead of requesting a fresh location
